@@ -11,6 +11,11 @@
 // NEXT_PUBLIC_LAUNCH_DATE explicitly.
 export const DEFAULT_LAUNCH_DATE = "2026-08-31T00:00:00+07:00";
 
+// Relative fallback duration: when no absolute NEXT_PUBLIC_LAUNCH_DATE is configured,
+// the screen counts down this many seconds from page load — so the countdown visibly
+// ticks instead of appearing frozen on a far-future date. Handy for a live demo.
+export const COUNTDOWN_DURATION_SECONDS = 7;
+
 /**
  * Resolve the configured launch date as a Date.
  * Returns a valid Date; falls back to DEFAULT_LAUNCH_DATE on missing/invalid input.
@@ -19,6 +24,20 @@ export function getLaunchDate(): Date {
   const raw = process.env.NEXT_PUBLIC_LAUNCH_DATE;
   const parsed = parseLaunchDate(raw);
   return parsed ?? new Date(DEFAULT_LAUNCH_DATE);
+}
+
+/**
+ * Resolve the moment the countdown should reach zero.
+ * - If NEXT_PUBLIC_LAUNCH_DATE is set and valid → that absolute instant.
+ * - Otherwise → `nowMs` + COUNTDOWN_DURATION_SECONDS (a short relative countdown).
+ *
+ * `nowMs` is injected (defaults to Date.now()) so callers can pin it to mount time
+ * and so the relative branch stays unit-testable.
+ */
+export function getCountdownTarget(nowMs: number = Date.now()): Date {
+  const envDate = parseLaunchDate(process.env.NEXT_PUBLIC_LAUNCH_DATE);
+  if (envDate) return envDate;
+  return new Date(nowMs + COUNTDOWN_DURATION_SECONDS * 1000);
 }
 
 /**

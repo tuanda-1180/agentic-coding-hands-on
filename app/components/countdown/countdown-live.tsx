@@ -1,17 +1,25 @@
 "use client";
 
+import { useState } from "react";
 import CountdownDisplay from "./countdown-display";
-import { getLaunchDate } from "../../lib/countdown-config";
+import { getCountdownTarget } from "../../lib/countdown-config";
 import { useCountdown } from "../../lib/use-countdown";
 
-// Build-time constant (NEXT_PUBLIC_* is inlined), so resolve it once at module load.
-const LAUNCH_DATE = getLaunchDate();
-
 /**
- * Client integration seam: drives CountdownDisplay with live, ticking values
- * counting down to the configured launch date. Freezes at 00/00/00 on completion.
+ * Client integration seam: drives CountdownDisplay with live, ticking values.
+ * Counts down to NEXT_PUBLIC_LAUNCH_DATE when set, otherwise a short relative
+ * countdown from mount (COUNTDOWN_DURATION_SECONDS). Freezes at zero on completion.
  */
 export default function CountdownLive() {
-  const { days, hours, minutes } = useCountdown(LAUNCH_DATE);
-  return <CountdownDisplay days={days} hours={hours} minutes={minutes} />;
+  // Pin the target to mount time so the relative countdown starts fresh on each load.
+  const [target] = useState(() => getCountdownTarget());
+  const { days, hours, minutes, seconds } = useCountdown(target);
+  return (
+    <CountdownDisplay
+      days={days}
+      hours={hours}
+      minutes={minutes}
+      seconds={seconds}
+    />
+  );
 }

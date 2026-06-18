@@ -1,6 +1,6 @@
 # Takumi — Prelaunch Countdown
 
-Full-viewport countdown landing page built with Next.js 16. Counts down to a configurable launch datetime using LED 7-segment digit displays (DAYS / HOURS / MINUTES). Freezes at 00/00/00 on completion.
+Full-viewport countdown landing page built with Next.js 16. Counts down to a configurable launch datetime using LED 7-segment digit displays (DAYS / HOURS / MINUTES / SECONDS), ticking every second. Freezes at 00/00/00/00 on completion.
 
 ## Requirements
 
@@ -18,7 +18,9 @@ Copy `.env.example` and set the launch datetime:
 NEXT_PUBLIC_LAUNCH_DATE="2026-12-31T00:00:00+07:00"  # ISO 8601, any timezone offset
 ```
 
-If unset or unparseable, the app falls back to the default date in `app/lib/countdown-config.ts`.
+If unset or unparseable, the app counts down a short relative duration from page load
+(`COUNTDOWN_DURATION_SECONDS`, default 7s) — so the countdown is visibly ticking for demos
+rather than appearing frozen on a far-future date.
 
 ## Development
 
