@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# takumi tooling artifacts
+.claude/
+release-manifest.json
