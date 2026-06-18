@@ -4,12 +4,14 @@ interface CountdownDisplayProps {
   days: number;
   hours: number;
   minutes: number;
+  seconds: number;
 }
 
 export default function CountdownDisplay({
   days,
   hours,
   minutes,
+  seconds,
 }: CountdownDisplayProps) {
   return (
     <div
@@ -47,6 +49,7 @@ export default function CountdownDisplay({
         <CountdownUnit value={days} label="DAYS" />
         <CountdownUnit value={hours} label="HOURS" />
         <CountdownUnit value={minutes} label="MINUTES" />
+        <CountdownUnit value={seconds} label="SECONDS" />
       </div>
     </div>
   );

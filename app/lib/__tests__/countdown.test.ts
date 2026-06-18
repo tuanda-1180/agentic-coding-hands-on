@@ -1,12 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import {
-  computeCountdown,
-  CountdownValues,
-} from "../use-countdown";
+import { computeCountdown, isCountdownComplete } from "../use-countdown";
 import {
   parseLaunchDate,
   getLaunchDate,
+  getCountdownTarget,
   DEFAULT_LAUNCH_DATE,
+  COUNTDOWN_DURATION_SECONDS,
 } from "../countdown-config";
 
 describe("computeCountdown", () => {
@@ -15,35 +14,65 @@ describe("computeCountdown", () => {
       const now = 0;
       const target = (2 * 24 * 60 * 60 + 3 * 60 * 60 + 30 * 60) * 1000;
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 2, hours: 3, minutes: 30 });
+      expect(result).toEqual({ days: 2, hours: 3, minutes: 30, seconds: 0 });
     });
 
     it("computes 1 day 0 hours 0 minutes exactly", () => {
       const now = 0;
       const target = 1 * 24 * 60 * 60 * 1000;
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 1, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 1, hours: 0, minutes: 0, seconds: 0 });
     });
 
     it("computes 23 hours 59 minutes with 0 days", () => {
       const now = 0;
       const target = (23 * 60 * 60 + 59 * 60) * 1000;
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 0, hours: 23, minutes: 59 });
+      expect(result).toEqual({ days: 0, hours: 23, minutes: 59, seconds: 0 });
     });
 
     it("computes less than 1 day (0 days) remaining", () => {
       const now = 0;
       const target = (12 * 60 * 60 + 30 * 60) * 1000; // 12.5 hours
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 0, hours: 12, minutes: 30 });
+      expect(result).toEqual({ days: 0, hours: 12, minutes: 30, seconds: 0 });
     });
 
     it("computes exactly at target time (all zeros)", () => {
       const now = 1000000;
       const target = 1000000;
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    });
+  });
+
+  describe("seconds component", () => {
+    it("computes the seconds component", () => {
+      const now = 0;
+      const target = (5 * 60 + 27) * 1000; // 5m 27s
+      const result = computeCountdown(target, now);
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 5, seconds: 27 });
+    });
+
+    it("seconds stays within 0-59 range", () => {
+      const now = 0;
+      const target = 59 * 1000; // 59s
+      const result = computeCountdown(target, now);
+      expect(result.seconds).toBe(59);
+      expect(result.seconds).toBeLessThanOrEqual(59);
+      expect(result.seconds).toBeGreaterThanOrEqual(0);
+    });
+
+    // Regression for the "countdown đứng yên / không đếm ngược" bug:
+    // the display must change every second, so the seconds component must
+    // decrement by exactly 1 when `now` advances by 1000ms (no minute boundary).
+    it("decrements the seconds component once per second", () => {
+      const target = 50_000; // 50s out, no minute boundary crossed
+      const a = computeCountdown(target, 0);
+      const b = computeCountdown(target, 1000);
+      expect(a.seconds).toBe(50);
+      expect(b.seconds).toBe(49);
+      expect(a.seconds - b.seconds).toBe(1);
     });
   });
 
@@ -52,21 +81,21 @@ describe("computeCountdown", () => {
       const now = 2000000;
       const target = 1000000; // past
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     });
 
     it("freezes at zero (does not go negative)", () => {
       const now = 5000000;
       const target = 1000000; // far past
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     });
   });
 
   describe("boundary: component ranges", () => {
     it("hours stays within 0-23 range", () => {
       const now = 0;
-      const target = (25 * 60 * 60) * 1000; // 25 hours
+      const target = 25 * 60 * 60 * 1000; // 25 hours
       const result = computeCountdown(target, now);
       expect(result.hours).toBeLessThanOrEqual(23);
       expect(result.hours).toBeGreaterThanOrEqual(0);
@@ -88,46 +117,46 @@ describe("computeCountdown", () => {
       const now = 0;
       const target = 24 * 60 * 60 * 1000;
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 1, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 1, hours: 0, minutes: 0, seconds: 0 });
     });
 
     it("handles 59 minutes 59 seconds (just under 1 hour)", () => {
       const now = 0;
       const target = (59 * 60 + 59) * 1000;
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 59 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 59, seconds: 59 });
     });
   });
 
   describe("error handling: invalid inputs", () => {
     it("returns zeros for NaN targetMs", () => {
       const result = computeCountdown(NaN, 1000000);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     });
 
     it("returns zeros for NaN nowMs", () => {
       const result = computeCountdown(1000000, NaN);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     });
 
     it("returns zeros for Infinity targetMs", () => {
       const result = computeCountdown(Infinity, 1000000);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     });
 
     it("returns zeros for -Infinity targetMs", () => {
       const result = computeCountdown(-Infinity, 1000000);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     });
 
     it("returns zeros for Infinity nowMs", () => {
       const result = computeCountdown(1000000, Infinity);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     });
 
     it("returns zeros for -Infinity nowMs", () => {
       const result = computeCountdown(1000000, -Infinity);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 0 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     });
   });
 
@@ -139,20 +168,21 @@ describe("computeCountdown", () => {
       expect(result.days).toBe(365);
       expect(result.hours).toBe(0);
       expect(result.minutes).toBe(0);
+      expect(result.seconds).toBe(0);
     });
 
-    it("handles fractional seconds (rounds down to nearest minute)", () => {
+    it("handles fractional seconds (rounds down to nearest second)", () => {
       const now = 0;
-      const target = (1 * 60 + 30.9) * 1000; // 1.5 min with fractional part
+      const target = (1 * 60 + 30.9) * 1000; // 1m 30.9s with fractional part
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 0, hours: 0, minutes: 1 });
+      expect(result).toEqual({ days: 0, hours: 0, minutes: 1, seconds: 30 });
     });
 
-    it("correctly floors seconds component (ignores subsecond precision)", () => {
+    it("correctly floors the seconds component (ignores subsecond precision)", () => {
       const now = 0;
       const target = (2 * 60 * 60 + 3 * 60 + 45.7) * 1000; // 2h 3m 45.7s
       const result = computeCountdown(target, now);
-      expect(result).toEqual({ days: 0, hours: 2, minutes: 3 });
+      expect(result).toEqual({ days: 0, hours: 2, minutes: 3, seconds: 45 });
     });
   });
 
@@ -162,9 +192,11 @@ describe("computeCountdown", () => {
       expect(result).toHaveProperty("days");
       expect(result).toHaveProperty("hours");
       expect(result).toHaveProperty("minutes");
+      expect(result).toHaveProperty("seconds");
       expect(typeof result.days).toBe("number");
       expect(typeof result.hours).toBe("number");
       expect(typeof result.minutes).toBe("number");
+      expect(typeof result.seconds).toBe("number");
     });
 
     it("all values are integers (never floats)", () => {
@@ -175,7 +207,27 @@ describe("computeCountdown", () => {
       expect(Number.isInteger(result.days)).toBe(true);
       expect(Number.isInteger(result.hours)).toBe(true);
       expect(Number.isInteger(result.minutes)).toBe(true);
+      expect(Number.isInteger(result.seconds)).toBe(true);
     });
+  });
+});
+
+describe("isCountdownComplete", () => {
+  it("is false when the target is in the future", () => {
+    expect(isCountdownComplete(2000, 1000)).toBe(false);
+  });
+
+  it("is true at the exact target moment", () => {
+    expect(isCountdownComplete(1000, 1000)).toBe(true);
+  });
+
+  it("is true when the target is in the past", () => {
+    expect(isCountdownComplete(1000, 2000)).toBe(true);
+  });
+
+  it("is false for non-finite inputs", () => {
+    expect(isCountdownComplete(NaN, 1000)).toBe(false);
+    expect(isCountdownComplete(1000, Infinity)).toBe(false);
   });
 });
 
@@ -207,38 +259,31 @@ describe("parseLaunchDate", () => {
 
   describe("invalid inputs", () => {
     it("returns null for undefined", () => {
-      const result = parseLaunchDate(undefined);
-      expect(result).toBeNull();
+      expect(parseLaunchDate(undefined)).toBeNull();
     });
 
     it("returns null for null", () => {
-      const result = parseLaunchDate(null);
-      expect(result).toBeNull();
+      expect(parseLaunchDate(null)).toBeNull();
     });
 
     it("returns null for empty string", () => {
-      const result = parseLaunchDate("");
-      expect(result).toBeNull();
+      expect(parseLaunchDate("")).toBeNull();
     });
 
     it("returns null for garbage string", () => {
-      const result = parseLaunchDate("not a date at all");
-      expect(result).toBeNull();
+      expect(parseLaunchDate("not a date at all")).toBeNull();
     });
 
     it("returns null for malformed ISO string (invalid date)", () => {
-      const result = parseLaunchDate("2026-13-45T25:70:80"); // invalid month/day/time
-      expect(result).toBeNull();
+      expect(parseLaunchDate("2026-13-45T25:70:80")).toBeNull();
     });
 
     it("returns null for random characters", () => {
-      const result = parseLaunchDate("abc123xyz");
-      expect(result).toBeNull();
+      expect(parseLaunchDate("abc123xyz")).toBeNull();
     });
 
     it("returns null for whitespace-only string", () => {
-      const result = parseLaunchDate("   ");
-      expect(result).toBeNull();
+      expect(parseLaunchDate("   ")).toBeNull();
     });
   });
 });
@@ -259,55 +304,93 @@ describe("getLaunchDate", () => {
   });
 
   it("returns a Date object", () => {
-    const result = getLaunchDate();
-    expect(result instanceof Date).toBe(true);
+    expect(getLaunchDate() instanceof Date).toBe(true);
   });
 
   it("returns DEFAULT_LAUNCH_DATE when env var is not set", () => {
     const result = getLaunchDate();
-    const defaultDate = new Date(DEFAULT_LAUNCH_DATE);
-    expect(result.getTime()).toBe(defaultDate.getTime());
+    expect(result.getTime()).toBe(new Date(DEFAULT_LAUNCH_DATE).getTime());
   });
 
   it("uses NEXT_PUBLIC_LAUNCH_DATE when valid env var is set", () => {
     const customDate = "2027-06-15T12:30:00Z";
     process.env.NEXT_PUBLIC_LAUNCH_DATE = customDate;
-    const result = getLaunchDate();
-    const expected = new Date(customDate);
-    expect(result.getTime()).toBe(expected.getTime());
+    expect(getLaunchDate().getTime()).toBe(new Date(customDate).getTime());
   });
 
   it("falls back to DEFAULT_LAUNCH_DATE when env var is invalid", () => {
     process.env.NEXT_PUBLIC_LAUNCH_DATE = "invalid-date-string";
-    const result = getLaunchDate();
-    const defaultDate = new Date(DEFAULT_LAUNCH_DATE);
-    expect(result.getTime()).toBe(defaultDate.getTime());
+    expect(getLaunchDate().getTime()).toBe(
+      new Date(DEFAULT_LAUNCH_DATE).getTime()
+    );
   });
 
   it("falls back to DEFAULT_LAUNCH_DATE when env var is empty string", () => {
     process.env.NEXT_PUBLIC_LAUNCH_DATE = "";
-    const result = getLaunchDate();
-    const defaultDate = new Date(DEFAULT_LAUNCH_DATE);
-    expect(result.getTime()).toBe(defaultDate.getTime());
+    expect(getLaunchDate().getTime()).toBe(
+      new Date(DEFAULT_LAUNCH_DATE).getTime()
+    );
   });
 
   it("always returns a valid, non-NaN Date", () => {
-    const result = getLaunchDate();
-    expect(!Number.isNaN(result.getTime())).toBe(true);
+    expect(!Number.isNaN(getLaunchDate().getTime())).toBe(true);
   });
 });
 
-describe("integration: computeCountdown + getLaunchDate", () => {
-  it("can compute countdown to configured launch date", () => {
-    const launchDate = getLaunchDate();
+describe("getCountdownTarget", () => {
+  const originalEnv = process.env.NEXT_PUBLIC_LAUNCH_DATE;
+
+  beforeEach(() => {
+    delete process.env.NEXT_PUBLIC_LAUNCH_DATE;
+  });
+
+  afterEach(() => {
+    if (originalEnv !== undefined) {
+      process.env.NEXT_PUBLIC_LAUNCH_DATE = originalEnv;
+    } else {
+      delete process.env.NEXT_PUBLIC_LAUNCH_DATE;
+    }
+  });
+
+  it("COUNTDOWN_DURATION_SECONDS is 7", () => {
+    expect(COUNTDOWN_DURATION_SECONDS).toBe(7);
+  });
+
+  it("counts down COUNTDOWN_DURATION_SECONDS from now when no env var is set", () => {
+    const now = 1_000_000;
+    const target = getCountdownTarget(now);
+    expect(target.getTime()).toBe(now + COUNTDOWN_DURATION_SECONDS * 1000);
+  });
+
+  it("yields a positive seconds countdown from the relative target", () => {
+    const now = 1_000_000;
+    const target = getCountdownTarget(now);
+    const result = computeCountdown(target.getTime(), now);
+    expect(result).toEqual({
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: COUNTDOWN_DURATION_SECONDS,
+    });
+  });
+
+  it("uses NEXT_PUBLIC_LAUNCH_DATE (absolute) when set, ignoring nowMs", () => {
+    const customDate = "2027-06-15T12:30:00Z";
+    process.env.NEXT_PUBLIC_LAUNCH_DATE = customDate;
+    const target = getCountdownTarget(1_000_000);
+    expect(target.getTime()).toBe(new Date(customDate).getTime());
+  });
+});
+
+describe("integration: computeCountdown + getCountdownTarget", () => {
+  it("can compute a live countdown to the resolved target", () => {
     const now = Date.now();
-    const result = computeCountdown(launchDate.getTime(), now);
-    // Default launch date is in the future (2026-12-31), so should have positive values
+    const target = getCountdownTarget(now);
+    const result = computeCountdown(target.getTime(), now);
     expect(result).toHaveProperty("days");
     expect(result).toHaveProperty("hours");
     expect(result).toHaveProperty("minutes");
-    expect(typeof result.days).toBe("number");
-    expect(typeof result.hours).toBe("number");
-    expect(typeof result.minutes).toBe("number");
+    expect(result).toHaveProperty("seconds");
+    expect(typeof result.seconds).toBe("number");
   });
 });

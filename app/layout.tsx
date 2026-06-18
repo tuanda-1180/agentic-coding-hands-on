@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import localFont from "next/font/local";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
+import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin", "vietnamese"],
-  weight: "700",
+  weight: ["400", "500", "600", "700"],
 });
 
 const ledFont = localFont({
@@ -19,17 +22,30 @@ export const metadata: Metadata = {
   description: "Countdown prelaunch page",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="vi"
+      lang={locale}
       className={`${montserrat.variable} ${ledFont.variable} h-full`}
+      // Browser extensions (e.g. Immersive Translate, theme/dark-mode addons) inject
+      // attributes onto <html> before React hydrates, causing a benign mismatch.
+      // suppressHydrationWarning only silences this element's own attributes, not its subtree.
+      suppressHydrationWarning
     >
-      <body className="h-full">{children}</body>
+      <body className="h-full">
+        <SessionProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            {children}
+          </NextIntlClientProvider>
+        </SessionProvider>
+      </body>
     </html>
   );
 }

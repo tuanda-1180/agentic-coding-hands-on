@@ -1,0 +1,73 @@
+{
+  "common": {
+    "comingSoon": "Coming soon",
+    "language": "Language"
+  },
+  "nav": {
+    "aboutSaa": "About SAA 2025",
+    "awardsInfo": "Awards Information",
+    "sunKudos": "Sun* Kudos",
+    "generalCriteria": "General Criteria"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "profile": "Profile",
+    "adminDashboard": "Admin Dashboard",
+    "userMenu": "User menu",
+    "notifications": "Notifications"
+  },
+  "hero": {
+    "comingSoon": "Coming soon",
+    "time": "Date:",
+    "venue": "Venue:",
+    "livestream": "Watch the live broadcast via Livestream",
+    "aboutAwards": "ABOUT AWARDS",
+    "aboutKudos": "ABOUT KUDOS"
+  },
+  "awards": {
+    "eventLabel": "Sun* annual awards 2025",
+    "sectionTitle": "Award System",
+    "detail": "Details",
+    "topTalentTitle": "Top Talent",
+    "topTalentDesc": "Honoring the top individuals who excel in every dimension",
+    "topProjectTitle": "Top Project",
+    "topProjectDesc": "Honoring the outstanding project that delivers exceptional value",
+    "topProjectLeaderTitle": "Top Project Leader",
+    "topProjectLeaderDesc": "Honoring the inspiring manager who leads the project to a breakthrough",
+    "bestManagerTitle": "Best Manager",
+    "bestManagerDesc": "Honoring the best manager of the year",
+    "signatureCreatorTitle": "Signature 2025 - Creator",
+    "signatureCreatorDesc": "Honoring the person who created a special mark in 2025",
+    "mvpTitle": "MVP (Most Valuable Person)",
+    "mvpDesc": "Honoring the individual who contributes the most value to Sun*"
+  },
+  "kudos": {
+    "label": "Recognition Movement",
+    "title": "Sun* Kudos",
+    "description": "WHAT'S NEW IN SAA 2025\nFor the first time, an activity to recognize and thank colleagues is held for all Sunners. Launching in November 2025, it encourages Sun* people to share recognition and thanks for their colleagues on the system announced by the organizers. This will serve as reference material for the Heads Council during the selection of award winners.",
+    "detail": "Details"
+  },
+  "rootFurther": {
+    "intro1": "In the face of the AI era's whirlwind of change and ever-rising customer expectations, Sun* has chosen a strategy of diversifying its capabilities — striving not only to become an elite in its field, but to reach a higher goal where every Sunner is a “problem-solver”: an expert at resolving every issue and finding answers for every challenge of our projects, customers and society.",
+    "intro2": "Inspired by this diversity of capability, the agility to grow, and the spirit of digging deep to break through in the AI era, “Root Further” was chosen as the official theme of the Sun* Annual Awards 2025.",
+    "intro3": "Beyond its surface meaning, “Root Further” is the journey of relentlessly reaching farther and rooting stronger — touching the deep “geological” layers to keep surviving, rising, and nurturing the ever-burning passion for creating value that defines Sun* people. Like roots that constantly drive deep into the earth, weaving through every layer of “sediment” to absorb the finest essence, Sun* people are likewise “absorbing” nutrients from the era and the market's challenges to renew themselves each day, expand their capabilities, and firmly “take root” in the AI era — an entirely new “geological” layer, complex and unpredictable, yet brimming with boundless potential and opportunity.",
+    "quote": "“A tree with deep roots fears no storm”",
+    "quoteAttrib": "(English proverb)",
+    "outro1": "Before the storm, only trees with strong enough roots can stand firm. An organization of individuals confident in their diverse capabilities — ready to create and embrace challenges, mastering change — is one that not only stands steady through turbulence but also seizes every advantage and conquers the challenges of the times. More than just the name of a new chapter in our organization's journey, “Root Further” is also an encouragement for each of us to dare to believe in ourselves, dare to dig deep, unlock every potential, break our limits, and become the most versatile, excellent version of ourselves. Because in the AI era, diverse capability and harnessing the power of the times are the prerequisites for endurance.",
+    "outro2": "No one knows how many mysterious “geological” layers still lie deep in the “earth” of modern technology and markets. We only know that once “Root Further” has become our rooted spirit, we will feel no fear — only excitement before any uncharted territory on the journey ahead. For we always believe that within those infinite realms lie countless wonders and chances to rise."
+  },
+  "footer": {
+    "aboutSaa": "About SAA 2025",
+    "awardsInfo": "Awards Information",
+    "sunKudos": "Sun* Kudos",
+    "generalCriteria": "General Criteria",
+    "copyright": "Copyright Sun* © 2025",
+    "homeAriaLabel": "SAA Home — scroll to top"
+  },
+  "fab": {
+    "writeKudos": "Write Kudos",
+    "saaRules": "SAA Rules",
+    "openActions": "Open quick actions"
+  }
+}
