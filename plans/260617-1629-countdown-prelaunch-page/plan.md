@@ -3,9 +3,13 @@
 **Screen:** Countdown - Prelaunch page · [MoMorph](https://momorph.ai/files/9ypp4enmFmdK3YAFJLIu6C/screens/8PJQswPZmU)
 **Decisions:** [clarifications.md](clarifications.md)
 
-A full-viewport prelaunch countdown landing page (home `/`). Counts down to a launch
+A full-viewport prelaunch countdown landing page. Counts down to a launch
 datetime from `NEXT_PUBLIC_LAUNCH_DATE`. Shows DAYS / HOURS / MINUTES as LED 7-segment
 digit pairs over decorative artwork. Freezes at `00 00 00` on completion. Fully public.
+
+> **Note (2026-06-18):** The home route `/` was later reassigned to the
+> [Homepage SAA plan](../260618-0942-homepage-saa/plan.md); this prelaunch page now lives at
+> `/countdown`, and its countdown components are reused by the Homepage hero.
 
 ## Two-Track Execution (MoMorph)
 - **Track A (UI, delegated to `implementer`):** presentational components from authoritative

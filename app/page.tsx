@@ -1,5 +1,5 @@
-import CountdownScreen from "./components/countdown/countdown-screen";
+import HomepageScreen from "./components/homepage/homepage-screen";
 
 export default function Home() {
-  return <CountdownScreen />;
+  return <HomepageScreen />;
 }

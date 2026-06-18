@@ -29,6 +29,14 @@ const ZERO: CountdownValues = { days: 0, hours: 0, minutes: 0, seconds: 0 };
  *
  * Exported for unit testing without timers.
  */
+/**
+ * Whether the countdown has reached (or passed) its target — used to switch the UI
+ * into the "complete" state (e.g. hide the hero's "Coming soon" subtitle). Pure + testable.
+ */
+export function isCountdownComplete(targetMs: number, nowMs: number): boolean {
+  return Number.isFinite(targetMs) && Number.isFinite(nowMs) && targetMs <= nowMs;
+}
+
 export function computeCountdown(targetMs: number, nowMs: number): CountdownValues {
   if (!Number.isFinite(targetMs) || !Number.isFinite(nowMs)) return ZERO;
 
@@ -48,16 +56,27 @@ export function computeCountdown(targetMs: number, nowMs: number): CountdownValu
  * after mount — avoiding a hydration mismatch. The 1s tick drives the visible SECONDS
  * unit so the countdown is seen ticking down rather than appearing frozen.
  */
-export function useCountdown(target: Date): CountdownValues {
+export function useCountdown(
+  target: Date,
+): CountdownValues & { isComplete: boolean } {
   const targetMs = target.getTime();
-  const [values, setValues] = useState<CountdownValues>(ZERO);
+  const [state, setState] = useState<CountdownValues & { isComplete: boolean }>({
+    ...ZERO,
+    isComplete: false,
+  });
 
   useEffect(() => {
-    const tick = () => setValues(computeCountdown(targetMs, Date.now()));
+    const tick = () => {
+      const now = Date.now();
+      setState({
+        ...computeCountdown(targetMs, now),
+        isComplete: isCountdownComplete(targetMs, now),
+      });
+    };
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [targetMs]);
 
-  return values;
+  return state;
 }

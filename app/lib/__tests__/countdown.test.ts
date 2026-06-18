@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { computeCountdown } from "../use-countdown";
+import { computeCountdown, isCountdownComplete } from "../use-countdown";
 import {
   parseLaunchDate,
   getLaunchDate,
@@ -209,6 +209,25 @@ describe("computeCountdown", () => {
       expect(Number.isInteger(result.minutes)).toBe(true);
       expect(Number.isInteger(result.seconds)).toBe(true);
     });
+  });
+});
+
+describe("isCountdownComplete", () => {
+  it("is false when the target is in the future", () => {
+    expect(isCountdownComplete(2000, 1000)).toBe(false);
+  });
+
+  it("is true at the exact target moment", () => {
+    expect(isCountdownComplete(1000, 1000)).toBe(true);
+  });
+
+  it("is true when the target is in the past", () => {
+    expect(isCountdownComplete(1000, 2000)).toBe(true);
+  });
+
+  it("is false for non-finite inputs", () => {
+    expect(isCountdownComplete(NaN, 1000)).toBe(false);
+    expect(isCountdownComplete(1000, Infinity)).toBe(false);
   });
 });
 

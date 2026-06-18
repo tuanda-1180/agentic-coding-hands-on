@@ -15,3 +15,124 @@ body {
   color: #ffffff;
   font-family: var(--font-montserrat, sans-serif);
 }
+
+/* ── Awards grid: 3 cols desktop / 2 tablet / 1 mobile ── */
+.awards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 108px;
+}
+
+@media (max-width: 1024px) {
+  .awards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .awards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Header: reduce padding on small screens ── */
+@media (max-width: 1024px) {
+  header[style*="padding: 12px 144px"] {
+    padding: 12px 24px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  header[style*="padding: 12px 144px"] {
+    padding: 12px 16px !important;
+  }
+}
+
+/* Hero content keeps its left edge aligned with the header logo (x=144),
+   shrinking in lockstep with the header padding on smaller screens. */
+@media (max-width: 1024px) {
+  .hero-content {
+    padding-left: 24px !important;
+    padding-right: 24px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-content {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* ── Reusable CTA button (gold primary / outline secondary) ──
+   The arrow icon recolors itself via `currentColor`, so it is always dark on a
+   gold fill and white on the dark outline — no per-variant icon asset needed. */
+.cta-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-family: var(--font-montserrat);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 28px;
+  text-decoration: none;
+  cursor: pointer;
+  will-change: transform;
+  transition: background-color 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cta-button__icon {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask: url("/saa/arrow-up.svg") center / contain no-repeat;
+  mask: url("/saa/arrow-up.svg") center / contain no-repeat;
+  transition: background-color 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cta-button {
+    transition: background-color 240ms ease, color 240ms ease,
+      border-color 240ms ease;
+  }
+  .cta-button:hover {
+    transform: none;
+  }
+}
+
+.cta-button--primary {
+  background-color: #ffea9e;
+  color: #00101a;
+  border-color: #ffea9e;
+}
+
+.cta-button--secondary {
+  background-color: rgba(255, 234, 158, 0.1);
+  color: #ffffff;
+  border-color: #998c5f;
+}
+
+/* Hover: both lift + glow; the outline button fills gold (per spec B3.2). */
+.cta-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25), 0 0 6px #fae287;
+}
+
+.cta-button--primary:hover {
+  background-color: #fff0b8;
+}
+
+.cta-button--secondary:hover {
+  background-color: #ffea9e;
+  color: #00101a;
+  border-color: #ffea9e;
+}
