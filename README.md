@@ -38,7 +38,7 @@ Demo seed credentials are documented in `.env.example`. Do not put real credenti
 | `/countdown` | Standalone full-viewport countdown page |
 | `/login` | Credentials sign-in (NextAuth v5) |
 | `/admin` | Admin stub — requires authenticated session with `role: admin` |
-| `/awards` | Awards stub |
+| `/awards` | Award System page (SAA 2025) — keyvisual hero, scroll-spy category nav, 6 award sections, Sun* Kudos promo |
 | `/kudos` | Kudos stub |
 | `/api/notifications` | GET (list), PATCH bulk mark-as-read |
 | `/api/notifications/[id]` | PATCH mark single notification as read |
