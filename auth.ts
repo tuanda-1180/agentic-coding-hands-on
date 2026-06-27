@@ -1,10 +1,21 @@
 import NextAuth from "next-auth";
+import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import { verifyCredentials } from "@/app/lib/auth/users";
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig: NextAuthConfig = {
   providers: [
+    // Google OAuth — primary sign-in for the Login screen. All Google accounts
+    // are allowed (no domain/allowlist restriction). Account linking is enabled
+    // so a Google login reuses an existing account with the same verified email.
+    Google({
+      allowDangerousEmailAccountLinking: true,
+      // Always show the Google account chooser, even when a Google session
+      // already exists — so logging out of the app and back in lets the user
+      // pick an account instead of silently reusing the active one.
+      authorization: { params: { prompt: "select_account" } },
+    }),
     Credentials({
       credentials: {
         email: { label: "Email", type: "email" },
@@ -40,17 +51,17 @@ export const authConfig: NextAuthConfig = {
   },
   callbacks: {
     jwt({ token, user }) {
-      // Persist role into JWT on sign-in
+      // Persist role into JWT on sign-in. Google OAuth users have no role on
+      // their profile, so default them to "regular".
       if (user) {
-        token.role = user.role;
+        token.role = user.role ?? "regular";
       }
       return token;
     },
     session({ session, token }) {
-      // Expose role to session (client + server components)
+      // Expose role to session (client + server components). The cast is needed
+      // because next-auth's JWT has an index signature that widens token.role.
       if (token.role) {
-        // token.role is JWT["role"] which is "regular"|"admin"|undefined;
-        // session.user.role is Session["user"]["role"] with the same union.
         session.user.role = token.role as "regular" | "admin";
       }
       return session;

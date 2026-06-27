@@ -23,6 +23,8 @@ Key variables:
 ```
 NEXT_PUBLIC_LAUNCH_DATE="2026-12-31T00:00:00+07:00"  # ISO 8601, any timezone offset
 AUTH_SECRET=                                            # generate: openssl rand -base64 32
+AUTH_GOOGLE_ID=                                         # Google OAuth client ID
+AUTH_GOOGLE_SECRET=                                     # Google OAuth client secret
 ```
 
 `NEXT_PUBLIC_LAUNCH_DATE` — if unset or unparseable, the countdown falls back to a short relative
@@ -36,7 +38,7 @@ Demo seed credentials are documented in `.env.example`. Do not put real credenti
 |------|-------------|
 | `/` | Homepage SAA (header, hero+countdown, root-further, awards, kudos, footer, FAB) |
 | `/countdown` | Standalone full-viewport countdown page |
-| `/login` | Credentials sign-in (NextAuth v5) |
+| `/login` | Google OAuth sign-in (NextAuth v5); credentials provider available in dev only |
 | `/admin` | Admin stub — requires authenticated session with `role: admin` |
 | `/awards` | Award System page (SAA 2025) — keyvisual hero, scroll-spy category nav, 6 award sections, Sun* Kudos promo |
 | `/kudos` | Kudos stub |
@@ -45,12 +47,17 @@ Demo seed credentials are documented in `.env.example`. Do not put real credenti
 
 ## Auth
 
-NextAuth v5 (beta), Credentials provider, JWT sessions. Role claim (`regular` \| `admin`) is stored
-in the JWT and forwarded to the session. The `proxy.ts` file (Next.js 16 renamed `middleware.ts`)
-guards `/admin/*` — unauthenticated or non-admin requests redirect to `/login?callbackUrl=…`.
+NextAuth v5 (beta), JWT sessions. Role claim (`regular` \| `admin`) is stored in the JWT and
+forwarded to the session. The `proxy.ts` file (Next.js 16 renamed `middleware.ts`) guards
+`/admin/*` — unauthenticated or non-admin requests redirect to `/login?callbackUrl=…`.
 
-Mock user store lives in `app/lib/auth/users.ts` — no database. Replace `verifyCredentials` with
-a real DB query (e.g. Prisma) when ready.
+**Primary sign-in: Google OAuth.** Configure `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` (see
+`.env.example`). OAuth users receive `role: regular`. An authenticated user visiting `/login` is
+redirected to `/`.
+
+**Credentials provider (dev only):** mock user store at `app/lib/auth/users.ts` — no database.
+Replace `verifyCredentials` with a real DB query (e.g. Prisma) when ready. Demo seed credentials
+are documented in `.env.example`.
 
 ## i18n
 
