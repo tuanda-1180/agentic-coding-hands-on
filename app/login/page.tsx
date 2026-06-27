@@ -1,78 +1,123 @@
-import { signInAction } from "@/app/lib/auth/actions";
+import Image from "next/image";
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+import { auth } from "@/auth";
+import { LoginHeader } from "@/app/components/login/login-header";
+import { LoginHero } from "@/app/components/login/login-hero";
+import { LoginFooter } from "@/app/components/login/login-footer";
 
 interface LoginPageProps {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }
 
+/**
+ * SAA 2025 Login page — presentational shell.
+ *
+ * Layer stack (matches Figma 1440x1024):
+ *   z-0  mms_C_Keyvisual   full-bleed wave artwork background (right side)
+ *   z-1  Rectangle 57      horizontal dark gradient (left-to-transparent)
+ *   z-1  Cover             vertical dark gradient (bottom fade)
+ *   z-10 mms_A_Header      absolute-positioned logo + language selector
+ *   z-2  mms_B_Bìa         hero content: ROOT FURTHER logo, subtitle, login button
+ *   z-2  mms_D_Footer      copyright bar
+ *
+ * Behavior:
+ * - Authenticated users are redirected to "/" (guard below).
+ * - The login button drives Google OAuth via GoogleLoginForm → signInWithGoogleAction.
+ * - All copy resolves through next-intl ("login" / "footer" namespaces).
+ */
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { callbackUrl } = await searchParams;
+  // Authenticated users never see the login screen — send them to the homepage.
+  const session = await auth();
+  if (session) {
+    redirect("/");
+  }
+
+  const { error, callbackUrl } = await searchParams;
+
+  // Any Google auth failure/cancel surfaces the single localized error message.
+  const t = await getTranslations("login");
+  const errorMessage = error ? t("loginFailed") : undefined;
 
   return (
     <main
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#00101A" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        minHeight: "100vh",
+        backgroundColor: "#00101A",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
+      {/* ── Layer 0: Full-bleed wave artwork background ── */}
       <div
-        className="w-full max-w-sm rounded-lg p-8"
-        style={{ backgroundColor: "#001A2B", border: "1px solid #0e3a52" }}
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+        }}
       >
-        <h1 className="text-white text-2xl font-bold mb-6 text-center">
-          Sign In
-        </h1>
-
-        <LoginForm callbackUrl={callbackUrl} />
+        <Image
+          src="/saa/keyvisual-bg.png"
+          alt=""
+          fill
+          style={{
+            objectFit: "cover",
+            objectPosition: "right center",
+          }}
+          priority
+        />
       </div>
+
+      {/* ── Layer 1a: Left horizontal dark gradient (Rectangle 57) ── */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
+          background:
+            "linear-gradient(90deg, #00101A 0%, #00101A 25.41%, rgba(0, 16, 26, 0.00) 100%)",
+        }}
+      />
+
+      {/* ── Layer 1b: Bottom vertical dark gradient (Cover) ── */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: "60%",
+          zIndex: 1,
+          background:
+            "linear-gradient(0deg, #00101A 22.48%, rgba(0, 19, 32, 0.00) 51.74%)",
+        }}
+      />
+
+      {/* ── Layer 10: Login-specific header (absolute, above gradients) ── */}
+      <LoginHeader />
+
+      {/* ── Layer 2: Hero content (ROOT FURTHER + text + login button) ── */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 2,
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          paddingTop: "80px", /* offset for absolute header height */
+        }}
+      >
+        <LoginHero errorMessage={errorMessage} callbackUrl={callbackUrl} />
+      </div>
+
+      {/* ── Layer 2: Footer ── */}
+      <LoginFooter />
     </main>
-  );
-}
-
-function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
-  return (
-    <form action={signInAction} className="flex flex-col gap-4">
-      {/* Pass callbackUrl through to the server action for post-login redirect */}
-      {callbackUrl && (
-        <input type="hidden" name="callbackUrl" value={callbackUrl} />
-      )}
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="email" className="text-sm text-gray-400">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          placeholder="you@example.com"
-          className="rounded px-3 py-2 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500"
-          style={{ backgroundColor: "#002233", border: "1px solid #0e3a52" }}
-        />
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label htmlFor="password" className="text-sm text-gray-400">
-          Password
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          required
-          autoComplete="current-password"
-          placeholder="••••••••"
-          className="rounded px-3 py-2 text-white text-sm outline-none focus:ring-2 focus:ring-blue-500"
-          style={{ backgroundColor: "#002233", border: "1px solid #0e3a52" }}
-        />
-      </div>
-
-      <button
-        type="submit"
-        className="mt-2 rounded px-4 py-2 text-white font-semibold text-sm transition-opacity hover:opacity-90 active:opacity-75"
-        style={{ backgroundColor: "#0070f3" }}
-      >
-        Sign In
-      </button>
-    </form>
   );
 }

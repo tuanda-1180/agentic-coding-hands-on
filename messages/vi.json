@@ -18,6 +18,13 @@
     "userMenu": "Menu người dùng",
     "notifications": "Thông báo"
   },
+  "login": {
+    "heroTitle": "ROOT FURTHER",
+    "heroSubtitle": "Bắt đầu hành trình của bạn cùng SAA 2025.",
+    "heroTagline": "Đăng nhập để khám phá!",
+    "loginWithGoogle": "LOGIN With Google",
+    "loginFailed": "Đăng nhập không thành công. Vui lòng thử lại."
+  },
   "hero": {
     "comingSoon": "Sắp ra mắt",
     "time": "Thời gian:",

@@ -18,6 +18,13 @@
     "userMenu": "User menu",
     "notifications": "Notifications"
   },
+  "login": {
+    "heroTitle": "ROOT FURTHER",
+    "heroSubtitle": "Begin your journey with SAA 2025.",
+    "heroTagline": "Sign in to explore!",
+    "loginWithGoogle": "LOGIN With Google",
+    "loginFailed": "Sign-in failed. Please try again."
+  },
   "hero": {
     "comingSoon": "Coming soon",
     "time": "Date:",
