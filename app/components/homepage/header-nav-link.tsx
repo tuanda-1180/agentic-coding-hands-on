@@ -36,10 +36,17 @@ interface HeaderNavLinkProps {
   href: string;
   label: string;
   active?: boolean;
+  /** Optional click handler (e.g. smooth-scroll on same-page links). */
+  onClick?: (e: React.MouseEvent<HTMLElement>) => void;
 }
 
 /** Header navigation link with active state and hover-as-active emphasis. */
-export function HeaderNavLink({ href, label, active = false }: HeaderNavLinkProps) {
+export function HeaderNavLink({
+  href,
+  label,
+  active = false,
+  onClick,
+}: HeaderNavLinkProps) {
   const [hovered, setHovered] = useState(false);
   const emphasized = active || hovered;
   const style: CSSProperties = emphasized
@@ -55,17 +62,17 @@ export function HeaderNavLink({ href, label, active = false }: HeaderNavLinkProp
     onBlur: () => setHovered(false),
   };
 
-  // Same-page hash links (e.g. #about) use a plain anchor; route links use next/link.
+  // Same-page hash links use a plain anchor; route links use next/link.
   if (href.startsWith("#")) {
     return (
-      <a href={href} style={style} {...handlers}>
+      <a href={href} style={style} onClick={onClick} {...handlers}>
         {label}
       </a>
     );
   }
 
   return (
-    <Link href={href} style={style} {...handlers}>
+    <Link href={href} style={style} onClick={onClick} {...handlers}>
       {label}
     </Link>
   );

@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { SessionProvider } from "next-auth/react";
+import SiteChrome from "./components/layout/site-chrome";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -42,7 +43,7 @@ export default async function RootLayout({
       <body className="h-full">
         <SessionProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            {children}
+            <SiteChrome>{children}</SiteChrome>
           </NextIntlClientProvider>
         </SessionProvider>
       </body>

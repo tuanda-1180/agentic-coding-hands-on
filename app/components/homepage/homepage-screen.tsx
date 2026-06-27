@@ -1,13 +1,11 @@
-import SiteHeader from "./site-header";
 import HeroSection from "./hero-section";
 import RootFurtherContent from "./root-further-content";
 import AwardsSection from "./awards-section";
 import KudosSection from "./kudos-section";
-import SiteFooter from "./site-footer";
 import Fab from "./fab";
 
 // HomepageScreen — full page composition.
-// Integration phase 07 mounts this at `/` and passes live props.
+// Header and footer are provided by the shared SiteChrome (app/layout.tsx).
 export default function HomepageScreen() {
   return (
     <div
@@ -18,9 +16,6 @@ export default function HomepageScreen() {
         flexDirection: "column",
       }}
     >
-      {/* Sticky header */}
-      <SiteHeader />
-
       {/* Main content */}
       <main style={{ flex: 1 }}>
         {/* Hero — full bleed with keyvisual bg */}
@@ -35,9 +30,6 @@ export default function HomepageScreen() {
         {/* Kudos promo block */}
         <KudosSection />
       </main>
-
-      {/* Footer */}
-      <SiteFooter />
 
       {/* Floating action button */}
       <Fab />

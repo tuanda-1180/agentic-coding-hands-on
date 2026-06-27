@@ -136,3 +136,98 @@ body {
   color: #00101a;
   border-color: #ffea9e;
 }
+
+/* ── Awards page: main content area ── */
+.awards-main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 96px 144px;
+  display: flex;
+  flex-direction: column;
+  gap: 120px;
+}
+
+@media (max-width: 1024px) {
+  .awards-main {
+    padding: 64px 24px;
+    gap: 80px;
+  }
+}
+
+@media (max-width: 640px) {
+  .awards-main {
+    padding: 40px 16px;
+    gap: 48px;
+  }
+}
+
+/* ── Awards two-column layout (nav + sections) ──
+   Design "B" frame: nav 178px + 121px gap + list 853px = 1152px content. */
+.awards-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 121px;
+  align-items: flex-start;
+}
+
+@media (max-width: 1024px) {
+  .awards-layout {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .awards-nav-sticky {
+    position: static !important;
+    width: 100% !important;
+  }
+
+  .awards-nav-sticky nav {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+
+  .awards-nav-sticky nav button {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto !important;
+    justify-content: center;
+  }
+}
+
+/* ── Award info section: image + content row ── */
+.award-info-row {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .award-info-row {
+    flex-direction: column !important;
+    align-items: center;
+  }
+
+  .award-info-row .award-info-picture {
+    width: 280px !important;
+    height: 280px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .award-info-row .award-info-picture {
+    width: 240px !important;
+    height: 240px !important;
+  }
+}
+
+/* ── Awards hero title ── */
+@media (max-width: 640px) {
+  .awards-section-title h1,
+  .awards-section-title h2 {
+    font-size: 36px !important;
+    line-height: 44px !important;
+  }
+}

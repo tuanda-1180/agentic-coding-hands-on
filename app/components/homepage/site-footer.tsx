@@ -10,7 +10,7 @@ export default function SiteFooter() {
   const tNav = useTranslations("nav");
 
   const navLinks = [
-    { label: tNav("aboutSaa"), href: "#about" },
+    { label: tNav("aboutSaa"), href: "/" },
     { label: tNav("awardsInfo"), href: "/awards" },
     { label: tNav("sunKudos"), href: "/kudos" },
     { label: tNav("generalCriteria"), href: "/awards#criteria" },
