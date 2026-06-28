@@ -92,7 +92,7 @@ export default function AwardsKudosBanner({ href = "/kudos" }: AwardsKudosBanner
             letterSpacing: "0.5px",
             color: "#FFFFFF",
             margin: 0,
-            textAlign: "justify",
+            textAlign: "left",
             whiteSpace: "pre-line",
           }}
         >

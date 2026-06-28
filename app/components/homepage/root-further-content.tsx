@@ -12,7 +12,7 @@ const bodyStyle: CSSProperties = {
   fontSize: "24px",
   lineHeight: "32px",
   color: "#FFFFFF",
-  textAlign: "justify",
+  textAlign: "left",
   margin: 0,
 };
 
