@@ -130,6 +130,21 @@ export function useDropdown(options?: UseDropdownOptions): UseDropdownReturn {
         e.stopPropagation();
         close();
         triggerRef.current?.focus();
+        return;
+      }
+
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const menu = menuRef.current;
+        if (!menu) return;
+        const items = Array.from(
+          menu.querySelectorAll<HTMLElement>('[role="menuitem"]')
+        );
+        if (items.length === 0) return;
+        const current = items.indexOf(document.activeElement as HTMLElement);
+        const delta = e.key === "ArrowDown" ? 1 : -1;
+        const next = (current + delta + items.length) % items.length;
+        items[next]?.focus();
       }
     },
     [close]

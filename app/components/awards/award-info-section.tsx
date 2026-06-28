@@ -140,7 +140,7 @@ export default function AwardInfoSection({
             letterSpacing: "0.5px",
             color: "#FFFFFF",
             margin: 0,
-            textAlign: "justify",
+            textAlign: "left",
           }}
         >
           {description}
