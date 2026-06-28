@@ -12,7 +12,7 @@
   },
   "auth": {
     "signIn": "Sign in",
-    "signOut": "Sign out",
+    "signOut": "Logout",
     "profile": "Profile",
     "adminDashboard": "Admin Dashboard",
     "userMenu": "User menu",
