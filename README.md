@@ -42,6 +42,7 @@ Demo seed credentials are documented in `.env.example`. Do not put real credenti
 | `/admin` | Admin stub — requires authenticated session with `role: admin` |
 | `/awards` | Award System page (SAA 2025) — keyvisual hero, scroll-spy category nav, 6 award sections, Sun* Kudos promo |
 | `/kudos` | Kudos stub |
+| `/rules` | 308 permanentRedirect → `/`; Rules content is an overlay panel on the homepage opened via the FAB |
 | `/api/notifications` | GET (list), PATCH bulk mark-as-read |
 | `/api/notifications/[id]` | PATCH mark single notification as read |
 
@@ -66,6 +67,16 @@ Default locale: `vi`. Supported: `vi`, `en`. Message files: `messages/{vi,en}.js
 
 No locale-prefix rewrites are applied in `proxy.ts` (adding next-intl middleware would rewrite every
 request to a locale path and 404 the whole app in this mode).
+
+## Shared UI Hooks
+
+Reusable hooks live in `app/components/ui/`:
+
+| Hook | Purpose |
+|------|---------|
+| `use-dialog.ts` | Accessible modal/overlay state — open/close, Esc key, backdrop click, focus trap |
+| `use-dropdown.ts` | Dropdown open/close with outside-click and keyboard dismiss |
+| `use-scroll-spy.ts` | Active section tracking for scroll-linked nav |
 
 ## Notifications
 

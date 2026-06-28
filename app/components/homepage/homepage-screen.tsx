@@ -2,7 +2,7 @@ import HeroSection from "./hero-section";
 import RootFurtherContent from "./root-further-content";
 import AwardsSection from "./awards-section";
 import KudosSection from "./kudos-section";
-import Fab from "./fab";
+import FabWithRules from "./fab-with-rules";
 
 // HomepageScreen — full page composition.
 // Header and footer are provided by the shared SiteChrome (app/layout.tsx).
@@ -31,8 +31,8 @@ export default function HomepageScreen() {
         <KudosSection />
       </main>
 
-      {/* Floating action button */}
-      <Fab />
+      {/* Floating action button + Thể lệ overlay panel */}
+      <FabWithRules />
     </div>
   );
 }
