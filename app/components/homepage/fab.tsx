@@ -8,7 +8,8 @@ import { useDropdown } from "@/app/components/ui/use-dropdown";
 
 interface FabAction {
   key: "rules" | "writeKudos";
-  href: string;
+  /** Route to navigate to, or null when the action opens an in-page panel. */
+  href: string | null;
   icon: string;
   /** Pen icon ships white; darken it so it reads on the yellow pill. */
   darkenIcon: boolean;
@@ -16,10 +17,16 @@ interface FabAction {
 
 // Order matches the design (screen Sv7DFwBw1h): Thể lệ on top, Viết KUDOS below.
 // `rules` uses the SAA lightning mark (fab-kudos.svg) per the design — not a typo.
+// `rules` opens the Thể lệ overlay panel (href null) instead of navigating.
 const FAB_ACTIONS: FabAction[] = [
-  { key: "rules", href: "/rules", icon: "/saa/fab-kudos.svg", darkenIcon: false },
+  { key: "rules", href: null, icon: "/saa/fab-kudos.svg", darkenIcon: false },
   { key: "writeKudos", href: "/kudos", icon: "/saa/fab-pen.svg", darkenIcon: true },
 ];
+
+interface FabProps {
+  /** Called when the "Thể lệ" action is chosen — opens the rules overlay panel. */
+  onOpenRules?: () => void;
+}
 
 const YELLOW = "#FFEA9E";
 const INK = "#00101A";
@@ -27,7 +34,7 @@ const RED = "#E73928";
 const PILL_SHADOW = "0 4px 4px rgba(0,0,0,0.25), 0 0 6px #FAE287";
 const PILL_SHADOW_HOVER = "0 6px 10px rgba(0,0,0,0.3), 0 0 10px #FAE287";
 
-export default function Fab() {
+export default function Fab({ onOpenRules }: FabProps) {
   const router = useRouter();
   const t = useTranslations("fab");
   const { isOpen, triggerRef, menuRef, close, triggerProps, menuProps } =
@@ -43,10 +50,15 @@ export default function Fab() {
     wasOpen.current = isOpen;
   }, [isOpen, triggerRef]);
 
-  // Close the panel before navigating so it isn't left open on the next route.
-  const handleAction = (href: string) => {
+  // Close the menu first, then run the action. `rules` (href null) opens the
+  // in-page Thể lệ panel; everything else navigates.
+  const handleAction = (action: FabAction) => {
     close();
-    router.push(href);
+    if (action.href) {
+      router.push(action.href);
+    } else if (action.key === "rules") {
+      onOpenRules?.();
+    }
   };
 
   return (
@@ -123,7 +135,7 @@ export default function Fab() {
             <button
               key={action.key}
               role="menuitem"
-              onClick={() => handleAction(action.href)}
+              onClick={() => handleAction(action)}
               onMouseEnter={() => setHovered(action.key)}
               onMouseLeave={() => setHovered(null)}
               style={{

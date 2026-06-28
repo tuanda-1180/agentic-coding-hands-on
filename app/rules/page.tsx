@@ -1,18 +1,8 @@
-import { useTranslations } from "next-intl";
+import { permanentRedirect } from "next/navigation";
 
-export default async function RulesPage() {
-  return <RulesContent />;
-}
-
-function RulesContent() {
-  const t = useTranslations("nav");
-
-  return (
-    <main
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#00101A" }}
-    >
-      <h1 className="text-white text-2xl font-bold">{t("rules")}</h1>
-    </main>
-  );
+// The Thể lệ (Rules) content is shown as an in-page overlay panel opened from the
+// homepage FAB, not as a standalone route. The route is permanently retired, so
+// any direct hit on /rules (old links, bookmarks, crawlers) gets a 308 to home.
+export default function RulesPage() {
+  permanentRedirect("/");
 }
