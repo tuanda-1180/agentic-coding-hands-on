@@ -5,39 +5,48 @@ import { toSunner, one, type SunnerRow } from "./mappers";
 import type { Stats, Leaderboards, LeaderboardEntry } from "./types";
 
 /**
- * The current sunner id: prefer the signed-in user matched by email, and fall
- * back to the `is_current_user` demo flag when there is no session / no match.
+ * Resolve the signed-in user's sunner id.
+ * - No email (not signed in) → null. Login is required.
+ * - Email matches a sunner → that row.
+ * - Email present but NOT in the mock seed → a deterministic mock sunner, so a
+ *   real signed-in account still maps onto the mock dataset (seed emails are fake).
+ *   The signed-in name/avatar are layered on top by getProfileData.
  */
-export async function currentUserId(): Promise<string | null> {
+export async function resolveUserId(email?: string | null): Promise<string | null> {
+  if (!email) return null;
   const supabase = getServiceClient();
-
-  try {
-    const session = await auth();
-    const email = session?.user?.email;
-    if (email) {
-      const { data } = await supabase
-        .from("sunners")
-        .select("id")
-        .eq("email", email)
-        .maybeSingle();
-      if (data?.id) return data.id;
-    }
-  } catch {
-    // No request context / auth unavailable — fall through to the demo flag.
-  }
 
   const { data } = await supabase
     .from("sunners")
     .select("id")
-    .eq("is_current_user", true)
+    .eq("email", email)
+    .maybeSingle();
+  if (data?.id) return data.id;
+
+  const { data: fallback } = await supabase
+    .from("sunners")
+    .select("id")
+    .order("name", { ascending: true })
     .limit(1)
     .maybeSingle();
-  return data?.id ?? null;
+  return fallback?.id ?? null;
 }
 
-export async function getStats(): Promise<Stats> {
+export async function currentUserId(): Promise<string | null> {
+  try {
+    const session = await auth();
+    return resolveUserId(session?.user?.email);
+  } catch {
+    // No request context / auth unavailable → treat as not signed in.
+    return null;
+  }
+}
+
+export async function getStats(presolvedUid?: string | null): Promise<Stats> {
   const supabase = getServiceClient();
-  const uid = await currentUserId();
+  // Allow callers that already resolved the current user to pass it in (avoids a
+  // redundant auth()/DB round-trip). `undefined` = resolve here; `null` = no user.
+  const uid = presolvedUid === undefined ? await currentUserId() : presolvedUid;
   if (!uid) {
     return { kudosReceived: 0, kudosSent: 0, heartsReceived: 0, secretBoxOpened: 0, secretBoxUnopened: 0 };
   }
@@ -71,6 +80,18 @@ export async function getStats(): Promise<Stats> {
     secretBoxOpened: boxRows.filter((b) => b.is_opened).length,
     secretBoxUnopened: boxRows.filter((b) => !b.is_opened).length,
   };
+}
+
+/** Kudos received/sent counts for any user (used by the hover-avatar info card). */
+export async function getUserKudosCounts(
+  userId: string
+): Promise<{ received: number; sent: number }> {
+  const supabase = getServiceClient();
+  const [received, sent] = await Promise.all([
+    supabase.from("kudos").select("id", { count: "exact", head: true }).eq("receiver_id", userId),
+    supabase.from("kudos").select("id", { count: "exact", head: true }).eq("sender_id", userId),
+  ]);
+  return { received: received.count ?? 0, sent: sent.count ?? 0 };
 }
 
 export async function getLeaderboards(): Promise<Leaderboards> {

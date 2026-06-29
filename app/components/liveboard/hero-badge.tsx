@@ -3,7 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { GOLD, PANEL_BG } from "./theme";
+import { GOLD, PANEL_BG, SEPARATOR } from "./theme";
 
 // Navy overlay (#092432) over the "Root further" keyvisual, per hero tier.
 // Lower-ranked tiers are darkened (0.50); Legend Hero shows the full-bright art (0).
@@ -27,7 +27,7 @@ function tierInfo(label: string, t: ReturnType<typeof useTranslations>): { title
 }
 
 /** The badge pill itself (no hover behaviour). `big` is the tooltip-sized variant. */
-function Pill({ label, big = false }: { label: string; big?: boolean }) {
+export function BadgePill({ label, big = false }: { label: string; big?: boolean }) {
   const overlay = OVERLAY_BY_TIER[label] ?? 0.5;
   const style: CSSProperties = {
     display: "inline-flex",
@@ -68,7 +68,7 @@ export default function HeroBadge({ label }: { label: string }) {
       onMouseEnter={(e) => setRect(e.currentTarget.getBoundingClientRect())}
       onMouseLeave={() => setRect(null)}
     >
-      <Pill label={label} />
+      <BadgePill label={label} />
       {rect && info && typeof document !== "undefined" &&
         createPortal(
           <div
@@ -89,12 +89,12 @@ export default function HeroBadge({ label }: { label: string }) {
               padding: "16px",
               borderRadius: "16px",
               background: PANEL_BG,
-              border: "1px solid #2E3940",
+              border: `1px solid ${SEPARATOR}`,
               boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
               pointerEvents: "none",
             }}
           >
-            <Pill label={label} big />
+            <BadgePill label={label} big />
             <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
               <span style={{ fontFamily: "var(--font-montserrat)", fontSize: "14px", fontWeight: 700, lineHeight: "20px", letterSpacing: "0.1px", color: "#FFFFFF" }}>
                 {info.title}

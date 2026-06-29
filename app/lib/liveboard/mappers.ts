@@ -9,7 +9,6 @@ export interface SunnerRow {
   title: string | null;
   star_count: number;
   email?: string;
-  is_current_user?: boolean;
 }
 
 export interface KudosRow {

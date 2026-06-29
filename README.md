@@ -43,8 +43,13 @@ Demo seed credentials are documented in `.env.example`. Do not put real credenti
 | `/awards` | Award System page (SAA 2025) — keyvisual hero, scroll-spy category nav, 6 award sections, Sun* Kudos promo |
 | `/kudos` | Kudos stub |
 | `/rules` | 308 permanentRedirect → `/`; Rules content is an overlay panel on the homepage opened via the FAB |
+| `/liveboard` | Sun* Kudos Live Board — banner, highlight carousel, spotlight word-cloud, all-kudos feed, sidebar stats + leaderboard |
+| `/profile` | Profile page — personal view of the signed-in user's kudos (received/sent filter, icon collection, stats) |
 | `/api/notifications` | GET (list), PATCH bulk mark-as-read |
 | `/api/notifications/[id]` | PATCH mark single notification as read |
+| `/api/liveboard/*` | GET endpoints: filters, highlights, kudos, leaderboards, spotlight, stats |
+| `/api/profile` | GET — profile user data for the signed-in user |
+| `/api/profile/kudos` | GET `?direction=received\|sent&page=&pageSize=` — paginated kudos feed |
 
 ## Auth
 

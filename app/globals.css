@@ -231,3 +231,53 @@ body {
     line-height: 44px !important;
   }
 }
+
+/* ──────────────────────────────────────────────────────────
+   Profile screen (Profile bản thân)
+   Breakpoints: desktop ≥ 1024 | tablet 640–1024 | mobile < 640
+   ────────────────────────────────────────────────────────── */
+
+/* Responsive: profile name scales down on mobile */
+.profile-user-name {
+  /* Desktop: 36px (from design) */
+  font-size: 36px;
+  line-height: 44px;
+}
+@media (max-width: 640px) {
+  .profile-user-name {
+    font-size: 24px !important;
+    line-height: 32px !important;
+  }
+}
+
+/* KUDOS large title: 57px desktop → 36px mobile */
+.profile-kudos-title {
+  font-size: 57px;
+  line-height: 64px;
+}
+@media (max-width: 640px) {
+  .profile-kudos-title {
+    font-size: 36px !important;
+    line-height: 44px !important;
+  }
+}
+
+/* Hero zone: avatar overlap shrinks on mobile */
+@media (max-width: 640px) {
+  .profile-hero-overlap {
+    margin-top: -80px !important;
+  }
+}
+
+/* Icon slot row wraps gracefully on mobile */
+.profile-icon-row {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Keyvisual height: shorter on mobile (less wasted vertical space) */
+@media (max-width: 640px) {
+  .profile-keyvisual {
+    height: 320px !important;
+  }
+}

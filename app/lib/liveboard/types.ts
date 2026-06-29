@@ -41,6 +41,21 @@ export interface Stats {
   secretBoxUnopened: number;
 }
 
+// ---- Profile page ----
+
+export type KudosDirection = "received" | "sent";
+
+export interface IconCollection {
+  unlocked: number; // count of unlocked (opened secret box) icon slots
+  total: number; // total slots rendered (locked ones shown gray)
+}
+
+export interface ProfileData {
+  user: Sunner | null; // null when no current user can be resolved
+  stats: Stats; // reused for the stats panel AND the received/sent counts
+  iconCollection: IconCollection;
+}
+
 export interface SpotlightNode {
   id: string;
   name: string;
