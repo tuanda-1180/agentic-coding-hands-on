@@ -30,16 +30,21 @@ export async function getProfileUser(presolvedUid?: string | null): Promise<Sunn
 }
 
 /**
- * Paginated kudos for the current user, by direction:
+ * Paginated kudos for a user, by direction:
  *  - "received": kudos where the user is the receiver
  *  - "sent": kudos where the user is the sender
+ *
+ * `userId` targets a specific user (other-user profile); when omitted, falls
+ * back to the signed-in user (own profile). The `liked` flag always reflects the
+ * current viewer, not the profile owner.
  */
 export async function getKudosByUser(opts: {
   direction: KudosDirection;
+  userId?: string;
   page?: number;
   pageSize?: number;
 }): Promise<KudosFeedResponse> {
-  const uid = await currentUserId();
+  const uid = opts.userId ?? (await currentUserId());
   if (!uid) return { items: [], nextPage: null, total: 0 };
 
   const page = Math.max(0, opts.page ?? 0);
@@ -98,5 +103,26 @@ export async function getProfileData(): Promise<ProfileData> {
       unlocked: Math.min(stats.secretBoxOpened, COLLECTIBLE_COUNT),
       total: COLLECTIBLE_COUNT,
     },
+  };
+}
+
+/**
+ * Public profile payload for any user ("Profile người khác").
+ * Unlike getProfileData() there is no session override — the identity comes
+ * straight from the sunners row.
+ *
+ * Secret-box progress is personal: it is zeroed here so it never leaks through
+ * the public endpoint (the other-user view hides those rows + the icon
+ * collection client-side anyway). Returns user=null when the id matches no sunner.
+ */
+export async function getPublicProfile(userId: string): Promise<ProfileData> {
+  const [user, stats] = await Promise.all([
+    getProfileUser(userId),
+    getStats(userId),
+  ]);
+  return {
+    user,
+    stats: { ...stats, secretBoxOpened: 0, secretBoxUnopened: 0 },
+    iconCollection: { unlocked: 0, total: COLLECTIBLE_COUNT },
   };
 }

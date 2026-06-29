@@ -56,6 +56,23 @@ const sendBtnStyle: CSSProperties = {
   fontSize: "16px",
 };
 
+// Secondary CTA: outlined link to the user's public profile ("Profile người khác").
+const viewProfileBtnStyle: CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: "100%",
+  height: "44px",
+  borderRadius: "8px",
+  background: "transparent",
+  color: GOLD,
+  border: `1px solid ${BORDER}`,
+  textDecoration: "none",
+  fontFamily: "var(--font-montserrat)",
+  fontWeight: 700,
+  fontSize: "15px",
+};
+
 function PencilIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ flexShrink: 0 }}>
@@ -170,6 +187,11 @@ export default function UserAvatarCard({ info, rect, onMouseEnter, onMouseLeave 
         <PencilIcon />
         {t("avatarSendKudo")}
       </Link>
+      {info.id && (
+        <Link href={`/profile/${info.id}`} style={viewProfileBtnStyle}>
+          {t("avatarViewProfile")}
+        </Link>
+      )}
     </div>,
     document.body
   );

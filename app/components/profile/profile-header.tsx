@@ -21,6 +21,11 @@ export interface ProfileHeaderProps {
     unlocked: number;
     total: number;
   };
+  /**
+   * Show the "Bộ sưu tập icon" row. False on another user's profile
+   * ("Profile người khác"), where the icon collection is personal-only.
+   */
+  showCollection?: boolean;
 }
 
 // Design: mms_A_Info is an absolute-positioned FRAME with gap:32px, centered.
@@ -108,7 +113,11 @@ const collectionLabelStyle: CSSProperties = {
  *
  * Overlap with the keyvisual banner is handled by the parent (ProfileScreen).
  */
-export default function ProfileHeader({ user, iconCollection }: ProfileHeaderProps) {
+export default function ProfileHeader({
+  user,
+  iconCollection,
+  showCollection = true,
+}: ProfileHeaderProps) {
   const t = useTranslations("profile");
   return (
     <div style={wrapperStyle}>
@@ -125,14 +134,16 @@ export default function ProfileHeader({ user, iconCollection }: ProfileHeaderPro
         </div>
       </div>
 
-      {/* Icon collection label + slots */}
-      <div style={collectionSectionStyle}>
-        <IconCollection
-          unlocked={iconCollection.unlocked}
-          total={iconCollection.total}
-        />
-        <span style={collectionLabelStyle}>{t("iconCollectionTitle")}</span>
-      </div>
+      {/* Icon collection label + slots — own profile only */}
+      {showCollection && (
+        <div style={collectionSectionStyle}>
+          <IconCollection
+            unlocked={iconCollection.unlocked}
+            total={iconCollection.total}
+          />
+          <span style={collectionLabelStyle}>{t("iconCollectionTitle")}</span>
+        </div>
+      )}
     </div>
   );
 }

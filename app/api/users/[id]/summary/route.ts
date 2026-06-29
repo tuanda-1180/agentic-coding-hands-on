@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { getUserKudosCounts } from "@/app/lib/liveboard/user-queries";
+import { isValidUserId } from "../../validation";
 
 export const dynamic = "force-dynamic";
-
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** GET /api/users/[id]/summary — kudos received/sent counts for the hover info card. */
 export async function GET(
@@ -12,7 +11,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    if (!UUID_RE.test(id)) {
+    if (!isValidUserId(id)) {
       return NextResponse.json({ error: "Invalid user id" }, { status: 400 });
     }
     return NextResponse.json(await getUserKudosCounts(id));
