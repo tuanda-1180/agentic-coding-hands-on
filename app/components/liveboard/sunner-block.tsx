@@ -1,17 +1,7 @@
-import Image from "next/image";
-import { type CSSProperties } from "react";
 import type { Sunner } from "@/app/lib/liveboard/types";
 import HeroBadge from "./hero-badge";
+import UserAvatar from "@/app/components/ui/user-avatar";
 import { DARK, MUTED } from "./theme";
-
-const avatarCss: CSSProperties = {
-  width: "64px",
-  height: "64px",
-  borderRadius: "50%",
-  border: "1.869px solid white",
-  objectFit: "cover",
-  flexShrink: 0,
-};
 
 /**
  * Avatar + name + a row of [team · hero badge · dot]. The hero badge sits to the
@@ -20,7 +10,11 @@ const avatarCss: CSSProperties = {
 export default function SunnerBlock({ sunner }: { sunner: Sunner }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "13px", flex: 1, minWidth: 0 }}>
-      <Image src={sunner.avatarUrl} alt={sunner.name} width={64} height={64} unoptimized style={avatarCss} />
+      <UserAvatar
+        src={sunner.avatarUrl}
+        alt={sunner.name}
+        info={{ id: sunner.id, name: sunner.name, team: sunner.team, badgeLabel: sunner.badge?.label }}
+      />
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px", width: "100%" }}>
         <span style={{ fontSize: "16px", fontWeight: 700, color: DARK, textAlign: "center", lineHeight: "24px", letterSpacing: "0.15px" }}>
           {sunner.name}

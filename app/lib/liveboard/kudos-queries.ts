@@ -10,7 +10,7 @@ import type {
   FilterOptions,
 } from "./types";
 
-const KUDOS_SELECT =
+export const KUDOS_SELECT =
   "id, content, category, tags, images, created_at, " +
   "sender:sunners!sender_id(*), receiver:sunners!receiver_id!inner(*), hearts(count)";
 
@@ -19,7 +19,7 @@ const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v
 const HIGHLIGHT_SCAN_LIMIT = 100;
 
 /** Which of the given kudos the current user has already liked (for the lit heart). */
-async function likedKudosIds(ids: string[]): Promise<Set<string>> {
+export async function likedKudosIds(ids: string[]): Promise<Set<string>> {
   if (ids.length === 0) return new Set();
   const uid = await currentUserId();
   if (!uid) return new Set();

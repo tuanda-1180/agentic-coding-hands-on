@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import type { Stats, LeaderboardEntry } from "@/app/lib/liveboard/types";
 import StatsPanel from "./stats-panel";
+import UserAvatar from "@/app/components/ui/user-avatar";
 import { GOLD, PANEL_BG, BORDER } from "./theme";
 
 export interface LiveboardSidebarProps {
@@ -23,13 +23,10 @@ const panelBase: CSSProperties = {
 function LeaderboardRow({ entry }: { entry: LeaderboardEntry }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-      <Image
+      <UserAvatar
         src={entry.sunner.avatarUrl}
         alt={entry.sunner.name}
-        width={64}
-        height={64}
-        unoptimized
-        style={{ borderRadius: "50%", border: "1.869px solid white", objectFit: "cover", flexShrink: 0 }}
+        info={{ id: entry.sunner.id, name: entry.sunner.name, team: entry.sunner.team, badgeLabel: entry.sunner.badge?.label }}
       />
       <div style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: 0 }}>
         <span style={{ fontSize: "16px", fontWeight: 700, color: "#FFFFFF", lineHeight: "1.3" }}>
