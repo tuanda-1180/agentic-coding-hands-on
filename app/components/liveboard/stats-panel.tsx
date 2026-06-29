@@ -7,7 +7,12 @@ import { GOLD, DARK, PANEL_BG, BORDER, SEPARATOR, FIRE } from "./theme";
 
 export interface StatsPanelProps {
   stats: Stats;
-  onOpenGift: () => void;
+  onOpenGift?: () => void;
+  /**
+   * Other-user profile view ("Profile người khác"): hide the secret-box rows and
+   * the "Mở quà" CTA, which are personal-only. Defaults to false (own profile).
+   */
+  publicView?: boolean;
 }
 
 const panelBase: CSSProperties = {
@@ -85,7 +90,7 @@ function GiftIcon() {
 }
 
 /** "Chỉ số thống kê" — overview stats card + Open Secret Box CTA. */
-export default function StatsPanel({ stats, onOpenGift }: StatsPanelProps) {
+export default function StatsPanel({ stats, onOpenGift, publicView = false }: StatsPanelProps) {
   const t = useTranslations("liveboard");
   return (
     <div style={{ ...panelBase, padding: "24px" }}>
@@ -93,25 +98,32 @@ export default function StatsPanel({ stats, onOpenGift }: StatsPanelProps) {
         <StatRow label={t("kudosReceived")} value={stats.kudosReceived} />
         <StatRow label={t("kudosSent")} value={stats.kudosSent} />
         <StatRow label={t("heartsReceived")} value={stats.heartsReceived} extra={<FireX2Badge />} />
-        <div style={{ height: "1px", background: SEPARATOR }} />
-        <StatRow label={t("secretBoxOpened")} value={stats.secretBoxOpened} />
-        <StatRow label={t("secretBoxUnopened")} value={stats.secretBoxUnopened} />
+        {/* Secret-box rows are personal — hidden on another user's profile. */}
+        {!publicView && (
+          <>
+            <div style={{ height: "1px", background: SEPARATOR }} />
+            <StatRow label={t("secretBoxOpened")} value={stats.secretBoxOpened} />
+            <StatRow label={t("secretBoxUnopened")} value={stats.secretBoxUnopened} />
+          </>
+        )}
       </div>
 
-      <button
-        type="button"
-        onClick={onOpenGift}
-        style={{
-          display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-          width: "100%", height: "60px", marginTop: "20px",
-          background: GOLD, borderRadius: "8px", border: "none",
-          fontSize: "22px", fontWeight: 700, color: DARK,
-          cursor: "pointer", fontFamily: "var(--font-montserrat)",
-        }}
-      >
-        {t("openGift")}
-        <GiftIcon />
-      </button>
+      {!publicView && (
+        <button
+          type="button"
+          onClick={onOpenGift}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+            width: "100%", height: "60px", marginTop: "20px",
+            background: GOLD, borderRadius: "8px", border: "none",
+            fontSize: "22px", fontWeight: 700, color: DARK,
+            cursor: "pointer", fontFamily: "var(--font-montserrat)",
+          }}
+        >
+          {t("openGift")}
+          <GiftIcon />
+        </button>
+      )}
     </div>
   );
 }

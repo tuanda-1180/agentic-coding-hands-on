@@ -169,6 +169,7 @@
     "avatarReceived": "Số Kudos nhận được:",
     "avatarSent": "Số Kudos đã gửi:",
     "avatarSendKudo": "Gửi KUDO",
+    "avatarViewProfile": "Xem hồ sơ",
     "copyright": "Bản quyền thuộc về Sun* © 2025",
     "loadMore": "Xem thêm",
     "loading": "Đang tải..."
@@ -184,7 +185,9 @@
     "emptyFeed": "Không có Kudos nào.",
     "comingSoon": "Tính năng đang được phát triển.",
     "notLoggedIn": "Vui lòng đăng nhập để xem hồ sơ của bạn.",
+    "notFound": "Không tìm thấy người dùng này.",
     "loadError": "Không thể tải hồ sơ. Vui lòng thử lại.",
+    "loadErrorOther": "Không thể tải hồ sơ này. Vui lòng thử lại.",
     "iconCollectionAria": "Bộ sưu tập huy hiệu",
     "iconUnlocked": "Huy hiệu đã mở khóa",
     "iconLocked": "Huy hiệu chưa mở khóa",

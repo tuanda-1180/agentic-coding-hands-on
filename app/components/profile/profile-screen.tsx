@@ -22,11 +22,21 @@ import {
   toastStyle,
 } from "./profile-screen.styles";
 
-// Connected root for "Profile bản thân". All data comes from the Supabase-backed
+export interface ProfileScreenProps {
+  /**
+   * When set, renders another user's public profile ("Profile người khác"):
+   * data is read from the public endpoints and personal-only parts (secret box,
+   * icon collection) are hidden. Omit for the signed-in user's own profile.
+   */
+  userId?: string;
+}
+
+// Connected root for the profile page. All data comes from the Supabase-backed
 // API via useProfileData(); the received/sent filter drives the feed direction.
-export default function ProfileScreen() {
+export default function ProfileScreen({ userId }: ProfileScreenProps = {}) {
   const t = useTranslations("profile");
-  const data = useProfileData();
+  const publicView = !!userId;
+  const data = useProfileData(userId ? { userId } : undefined);
   const [toast, setToast] = useState<string | null>(null);
 
   const sunner = data.profile?.user ?? null;
@@ -50,10 +60,11 @@ export default function ProfileScreen() {
     <div style={{ ...pageStyle, ...emptyStateStyle, paddingTop: "120px" }}>{msg}</div>
   );
 
-  // Distinguish: still loading · fetch failed · resolved but no current user.
-  if (data.error) return fullScreenMessage(t("loadError"));
+  // Distinguish: still loading · fetch failed · resolved but no user.
+  // Own profile with no user = not signed in; public profile = user not found.
+  if (data.error) return fullScreenMessage(publicView ? t("loadErrorOther") : t("loadError"));
   if (!data.profile) return fullScreenMessage(t("loading"));
-  if (!sunner) return fullScreenMessage(t("notLoggedIn"));
+  if (!sunner) return fullScreenMessage(publicView ? t("notFound") : t("notLoggedIn"));
 
   const user: ProfileUser = {
     name: sunner.name,
@@ -77,7 +88,11 @@ export default function ProfileScreen() {
           <div style={keyvisualOverlayStyle} aria-hidden="true" />
         </div>
         <div style={profileHeaderOverlapStyle} className="profile-hero-overlap">
-          <ProfileHeader user={user} iconCollection={iconCollection} />
+          <ProfileHeader
+            user={user}
+            iconCollection={iconCollection}
+            showCollection={!publicView}
+          />
         </div>
       </div>
 
@@ -85,7 +100,7 @@ export default function ProfileScreen() {
       <main>
         <div style={bodyStyle}>
           {/* mms_B — Stats card */}
-          <StatsPanel stats={stats} onOpenGift={handleOpenGift} />
+          <StatsPanel stats={stats} onOpenGift={handleOpenGift} publicView={publicView} />
 
           {/* mms_C header + mms_D feed */}
           <div style={feedSectionStyle}>

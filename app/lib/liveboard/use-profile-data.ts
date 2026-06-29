@@ -1,7 +1,10 @@
 "use client";
 
-// Client hook for the Profile page: loads the current user's profile header
-// (user + stats + icon collection) and a received/sent filtered kudos feed.
+// Client hook for the Profile page: loads a profile header (user + stats + icon
+// collection) and a received/sent filtered kudos feed.
+//
+// Pass `{ userId }` for another user's public profile ("Profile người khác");
+// omit it for the signed-in user's own profile ("Profile bản thân").
 import { useCallback, useEffect, useState } from "react";
 import type { KudosPost, KudosDirection, ProfileData } from "./types";
 
@@ -26,7 +29,12 @@ export interface ProfileDataState {
   toggleLike: (id: string) => void;
 }
 
-export function useProfileData(): ProfileDataState {
+export function useProfileData(options?: { userId?: string }): ProfileDataState {
+  const userId = options?.userId;
+  // Other-user profile reads the public endpoints; own profile uses /api/profile.
+  const profileUrl = userId ? `/api/users/${userId}/profile` : "/api/profile";
+  const kudosBase = userId ? `/api/users/${userId}/kudos` : "/api/profile/kudos";
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [profile, setProfile] = useState<ProfileData | null>(null);
@@ -35,29 +43,34 @@ export function useProfileData(): ProfileDataState {
   const [loadingMore, setLoadingMore] = useState(false);
   const [filter, setFilter] = useState<KudosDirection>("sent"); // default "Đã gửi"
 
-  // One-time: profile header (user + stats + icon collection).
+  // Per-profile: header (user + stats + icon collection). Re-runs when the URL
+  // changes (e.g. navigating /profile/A → /profile/B); reset first so the
+  // previous user's data never flashes while the new fetch is in flight.
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      setProfile(null); // drop the previous user's header before the new fetch
+      setError(null);
       try {
-        const p = await getJson<ProfileData>("/api/profile");
+        const p = await getJson<ProfileData>(profileUrl);
         if (!cancelled) setProfile(p);
       } catch (e) {
         if (!cancelled) setError(String(e));
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [profileUrl]);
 
   // Filter-driven: first feed page (resets on direction change).
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
+      setFeed([]); // clear the previous user's/direction's posts immediately
       setNextPage(null); // clear stale paging from the previous direction
       try {
         const fd = await getJson<{ items: KudosPost[]; nextPage: number | null; total: number }>(
-          `/api/profile/kudos?direction=${filter}&page=0&pageSize=${PAGE_SIZE}`
+          `${kudosBase}?direction=${filter}&page=0&pageSize=${PAGE_SIZE}`
         );
         if (cancelled) return;
         setFeed(fd.items);
@@ -69,7 +82,7 @@ export function useProfileData(): ProfileDataState {
       }
     })();
     return () => { cancelled = true; };
-  }, [filter]);
+  }, [filter, kudosBase]);
 
   const loadMore = useCallback(() => {
     if (nextPage === null || loadingMore) return;
@@ -77,7 +90,7 @@ export function useProfileData(): ProfileDataState {
     (async () => {
       try {
         const fd = await getJson<{ items: KudosPost[]; nextPage: number | null }>(
-          `/api/profile/kudos?direction=${filter}&page=${nextPage}&pageSize=${PAGE_SIZE}`
+          `${kudosBase}?direction=${filter}&page=${nextPage}&pageSize=${PAGE_SIZE}`
         );
         setFeed((prev) => [...prev, ...fd.items]);
         setNextPage(fd.nextPage);
@@ -87,7 +100,7 @@ export function useProfileData(): ProfileDataState {
         setLoadingMore(false);
       }
     })();
-  }, [nextPage, loadingMore, filter]);
+  }, [nextPage, loadingMore, filter, kudosBase]);
 
   const toggleLike = useCallback((id: string) => {
     const patch = (fn: (k: KudosPost) => KudosPost) =>
