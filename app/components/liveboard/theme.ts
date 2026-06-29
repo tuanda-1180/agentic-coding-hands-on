@@ -1,0 +1,9 @@
+// Shared Live Board palette.
+export const GOLD = "#FFEA9E";
+export const DARK = "#00101A";
+export const PANEL_BG = "#00070C";
+export const MUTED = "#999";
+export const RED = "#D4271D";
+export const BORDER = "#998C5F";
+export const SEPARATOR = "#2E3940";
+export const FIRE = "#F2541B";
