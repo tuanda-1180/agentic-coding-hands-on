@@ -1,0 +1,161 @@
+// Supabase-backed queries for the sidebar: current-user stats, leaderboards, like toggle.
+import { getServiceClient } from "@/app/lib/supabase/server-client";
+import { auth } from "@/auth";
+import { toSunner, one, type SunnerRow } from "./mappers";
+import type { Stats, Leaderboards, LeaderboardEntry } from "./types";
+
+/**
+ * The current sunner id: prefer the signed-in user matched by email, and fall
+ * back to the `is_current_user` demo flag when there is no session / no match.
+ */
+export async function currentUserId(): Promise<string | null> {
+  const supabase = getServiceClient();
+
+  try {
+    const session = await auth();
+    const email = session?.user?.email;
+    if (email) {
+      const { data } = await supabase
+        .from("sunners")
+        .select("id")
+        .eq("email", email)
+        .maybeSingle();
+      if (data?.id) return data.id;
+    }
+  } catch {
+    // No request context / auth unavailable — fall through to the demo flag.
+  }
+
+  const { data } = await supabase
+    .from("sunners")
+    .select("id")
+    .eq("is_current_user", true)
+    .limit(1)
+    .maybeSingle();
+  return data?.id ?? null;
+}
+
+export async function getStats(): Promise<Stats> {
+  const supabase = getServiceClient();
+  const uid = await currentUserId();
+  if (!uid) {
+    return { kudosReceived: 0, kudosSent: 0, heartsReceived: 0, secretBoxOpened: 0, secretBoxUnopened: 0 };
+  }
+
+  const [received, sent, recvKudos, boxes] = await Promise.all([
+    supabase.from("kudos").select("id", { count: "exact", head: true }).eq("receiver_id", uid),
+    supabase.from("kudos").select("id", { count: "exact", head: true }).eq("sender_id", uid),
+    supabase.from("kudos").select("id").eq("receiver_id", uid),
+    supabase.from("secret_boxes").select("is_opened").eq("user_id", uid),
+  ]);
+
+  // hearts received: +1 normal, +2 special, summed over kudos the user received
+  const recvIds = (recvKudos.data ?? []).map((k: { id: string }) => k.id);
+  let heartsReceived = 0;
+  if (recvIds.length) {
+    const { data: hearts } = await supabase
+      .from("hearts")
+      .select("is_special")
+      .in("kudos_id", recvIds);
+    heartsReceived = (hearts ?? []).reduce(
+      (sum: number, h: { is_special: boolean }) => sum + (h.is_special ? 2 : 1),
+      0
+    );
+  }
+
+  const boxRows = (boxes.data ?? []) as { is_opened: boolean }[];
+  return {
+    kudosReceived: received.count ?? 0,
+    kudosSent: sent.count ?? 0,
+    heartsReceived,
+    secretBoxOpened: boxRows.filter((b) => b.is_opened).length,
+    secretBoxUnopened: boxRows.filter((b) => !b.is_opened).length,
+  };
+}
+
+export async function getLeaderboards(): Promise<Leaderboards> {
+  const supabase = getServiceClient();
+  const [gifts, ranks] = await Promise.all([
+    supabase
+      .from("gift_recipients")
+      .select("prize_description, sunner:sunners!sunner_id(*)")
+      .order("created_at", { ascending: false })
+      .limit(10),
+    supabase
+      .from("rank_ups")
+      .select("description, sunner:sunners!sunner_id(*)")
+      .order("created_at", { ascending: false })
+      .limit(10),
+  ]);
+
+  const toEntry = (
+    row: { sunner: SunnerRow | SunnerRow[] },
+    description: string,
+    rank: number
+  ): LeaderboardEntry => ({ rank, sunner: toSunner(one(row.sunner)), description });
+
+  const giftEntries = (gifts.data ?? []).map(
+    (r: { prize_description: string; sunner: SunnerRow | SunnerRow[] }, i: number) =>
+      toEntry(r, r.prize_description, i + 1)
+  );
+  const riseEntries = (ranks.data ?? []).map(
+    (r: { description: string; sunner: SunnerRow | SunnerRow[] }, i: number) =>
+      toEntry(r, r.description, i + 1)
+  );
+
+  return { rise: riseEntries, gifts: giftEntries };
+}
+
+export interface LikeResult {
+  heartCount: number;
+  likedByMe: boolean;
+  disabled?: boolean; // sender cannot like own kudos
+}
+
+export async function toggleLike(kudosId: string): Promise<LikeResult> {
+  const supabase = getServiceClient();
+  const uid = await currentUserId();
+
+  const { data: kudos } = await supabase
+    .from("kudos")
+    .select("sender_id")
+    .eq("id", kudosId)
+    .maybeSingle();
+  if (!kudos) throw new Error("Kudos not found");
+
+  const countHearts = async () => {
+    const { count } = await supabase
+      .from("hearts")
+      .select("id", { count: "exact", head: true })
+      .eq("kudos_id", kudosId);
+    return count ?? 0;
+  };
+
+  // No identified user → cannot like (avoids inserting a NULL user_id).
+  if (!uid) {
+    return { heartCount: await countHearts(), likedByMe: false, disabled: true };
+  }
+
+  // Business rule: a sender cannot like their own kudos.
+  if (kudos.sender_id === uid) {
+    return { heartCount: await countHearts(), likedByMe: false, disabled: true };
+  }
+
+  const { data: existing } = await supabase
+    .from("hearts")
+    .select("id")
+    .eq("kudos_id", kudosId)
+    .eq("user_id", uid)
+    .maybeSingle();
+
+  let likedByMe: boolean;
+  if (existing) {
+    await supabase.from("hearts").delete().eq("id", existing.id);
+    likedByMe = false;
+  } else {
+    await supabase.from("hearts").insert({ kudos_id: kudosId, user_id: uid });
+    likedByMe = true;
+  }
+
+  return { heartCount: await countHearts(), likedByMe };
+}
