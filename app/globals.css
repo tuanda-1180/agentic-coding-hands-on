@@ -1,5 +1,5 @@
-@import "tailwindcss";
-
+/* Base reset (replaces the former Tailwind preflight — the project styles with
+   inline styles + the custom classes below, so Tailwind was vestigial). */
 *,
 *::before,
 *::after {
@@ -14,6 +14,42 @@ body {
   background-color: #00101a;
   color: #ffffff;
   font-family: var(--font-montserrat, sans-serif);
+}
+
+/* Preflight-equivalent normalizations the components rely on. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
 }
 
 /* ── Awards grid: 3 cols desktop / 2 tablet / 1 mobile ── */
@@ -279,5 +315,12 @@ body {
 @media (max-width: 640px) {
   .profile-keyvisual {
     height: 320px !important;
+  }
+}
+
+/* Spinner used by loading.tsx / error.tsx fallback UIs */
+@keyframes tkm-spin {
+  to {
+    transform: rotate(360deg);
   }
 }

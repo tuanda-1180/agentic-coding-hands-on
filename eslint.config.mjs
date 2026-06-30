@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Agent-kit tooling and vendored Python envs are not application code and
+    // use CommonJS — linting them only produces noise.
+    ".claude/**",
+    "**/.venv/**",
   ]),
 ]);
 

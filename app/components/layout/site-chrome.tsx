@@ -36,8 +36,8 @@ export default function SiteChrome({
 
   // Wrap in a flow block that grows to the full content height so the sticky
   // header's containing block spans the whole page — otherwise (e.g. directly
-  // under `body.h-full`, which is only viewport-tall) the header un-sticks after
-  // one screen of scrolling.
+  // under a viewport-tall `body`, which is `height: 100%` from globals.css) the
+  // header un-sticks after one screen of scrolling.
   return (
     <div
       style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
