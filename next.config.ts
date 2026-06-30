@@ -62,6 +62,11 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // isomorphic-dompurify pulls in jsdom, whose transitive deps mix CJS/ESM and
+  // break when Next bundles them into the serverless function. Keep it external
+  // so Node resolves it natively (also needs Node 22 — see package.json engines —
+  // where require() of an ES module is supported).
+  serverExternalPackages: ["isomorphic-dompurify"],
   images: {
     // Live board mock avatars/attachments are served from these hosts.
     remotePatterns: [
