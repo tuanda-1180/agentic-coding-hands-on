@@ -185,7 +185,6 @@
     "loadMore": "Xem thêm",
     "loading": "Đang tải...",
     "emptyFeed": "Không có Kudos nào.",
-    "comingSoon": "Tính năng đang được phát triển.",
     "notLoggedIn": "Vui lòng đăng nhập để xem hồ sơ của bạn.",
     "notFound": "Không tìm thấy người dùng này.",
     "loadError": "Không thể tải hồ sơ. Vui lòng thử lại.",
@@ -289,6 +288,25 @@
       "title": "Sun* Kudos",
       "body": "ĐIỂM MỚI CỦA SAA 2025\nHoạt động ghi nhận và cảm ơn đồng nghiệp - lần đầu tiên được diễn ra dành cho tất cả Sunner. Hoạt động sẽ được triển khai vào tháng 11/2025, khuyến khích người Sun* chia sẻ những lời ghi nhận, cảm ơn đồng nghiệp trên hệ thống do BTC công bố. Đây sẽ là chất liệu để Hội đồng Heads tham khảo trong quá trình lựa chọn người đạt giải.",
       "cta": "Chi tiết"
+    }
+  },
+  "secretBox": {
+    "title": "KHÁM PHÁ SECRET BOX CỦA BẠN",
+    "instruction": "Click vào box để mở",
+    "unopenedLabel": "Secretbox chưa mở",
+    "close": "Đóng",
+    "dialogAriaLabel": "Khám phá Secret Box",
+    "openBoxAriaLabel": "Mở Secret Box",
+    "boxImageAlt": "Hộp quà bí ẩn chưa mở",
+    "successTitle": "MỞ SECRET BOX THÀNH CÔNG",
+    "instructionContinue": "Click vào box để tiếp tục mở",
+    "badges": {
+      "stay_gold": "Stay Gold",
+      "flow_to_horizon": "Flow to Horizon",
+      "touch_of_light": "Touch of Light",
+      "beyond_the_boundary": "Beyond the Boundary",
+      "revival": "Revival",
+      "root_further": "Root Further"
     }
   },
   "writeKudos": {

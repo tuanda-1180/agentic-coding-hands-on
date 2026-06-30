@@ -1,5 +1,5 @@
 import { type CSSProperties } from "react";
-import { GOLD, DARK } from "@/app/components/liveboard/theme";
+import { GOLD } from "@/app/components/liveboard/theme";
 
 export const pageStyle: CSSProperties = {
   width: "100%",
@@ -81,22 +81,4 @@ export const loadMoreStyle: CSSProperties = {
   fontWeight: 700,
   fontSize: "16px",
   cursor: "pointer",
-};
-
-export const toastStyle: CSSProperties = {
-  position: "fixed",
-  bottom: "32px",
-  left: "50%",
-  transform: "translateX(-50%)",
-  background: DARK,
-  color: GOLD,
-  border: `1px solid ${GOLD}`,
-  borderRadius: "8px",
-  padding: "12px 24px",
-  fontFamily: "var(--font-montserrat)",
-  fontWeight: 700,
-  fontSize: "15px",
-  zIndex: 9999,
-  pointerEvents: "none",
-  boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
 };

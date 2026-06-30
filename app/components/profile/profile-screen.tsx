@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import StatsPanel from "@/app/components/liveboard/stats-panel";
+import { useSecretBox } from "@/app/components/secret-box/secret-box-provider";
 import KudosPostCard from "@/app/components/liveboard/kudos-post-card";
 import { useProfileData } from "@/app/lib/liveboard/use-profile-data";
 import ProfileHeader, { type ProfileUser } from "./profile-header";
@@ -19,7 +19,6 @@ import {
   feedStyle,
   emptyStateStyle,
   loadMoreStyle,
-  toastStyle,
 } from "./profile-screen.styles";
 
 export interface ProfileScreenProps {
@@ -37,7 +36,7 @@ export default function ProfileScreen({ userId }: ProfileScreenProps = {}) {
   const t = useTranslations("profile");
   const publicView = !!userId;
   const data = useProfileData(userId ? { userId } : undefined);
-  const [toast, setToast] = useState<string | null>(null);
+  const secretBox = useSecretBox();
 
   const sunner = data.profile?.user ?? null;
   const stats = data.profile?.stats ?? {
@@ -50,11 +49,9 @@ export default function ProfileScreen({ userId }: ProfileScreenProps = {}) {
   const iconCollection = data.profile?.iconCollection ?? { unlocked: 0, total: 6 };
   const counts = { received: stats.kudosReceived, sent: stats.kudosSent };
 
-  // "Mở Secret Box" is a placeholder per spec — show a transient "coming soon" toast.
-  const handleOpenGift = () => {
-    setToast(t("comingSoon"));
-    window.setTimeout(() => setToast(null), 3000);
-  };
+  // Open the Secret Box modal (global provider); the modal loads the live
+  // unopened count and drives the server-side open flow.
+  const handleOpenGift = () => secretBox?.open();
 
   const fullScreenMessage = (msg: string) => (
     <div style={{ ...pageStyle, ...emptyStateStyle, paddingTop: "120px" }}>{msg}</div>
@@ -139,8 +136,6 @@ export default function ProfileScreen({ userId }: ProfileScreenProps = {}) {
           </div>
         </div>
       </main>
-
-      {toast && <div style={toastStyle} role="status">{toast}</div>}
     </div>
   );
 }

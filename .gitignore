@@ -44,3 +44,6 @@ next-env.d.ts
 # takumi tooling artifacts
 .claude/
 release-manifest.json
+
+# local puppeteer screenshot helper (not part of the app)
+shot.mjs

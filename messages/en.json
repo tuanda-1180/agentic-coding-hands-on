@@ -185,7 +185,6 @@
     "loadMore": "Load more",
     "loading": "Loading...",
     "emptyFeed": "No Kudos yet.",
-    "comingSoon": "This feature is coming soon.",
     "notLoggedIn": "Please sign in to view your profile.",
     "notFound": "This user could not be found.",
     "loadError": "Could not load your profile. Please try again.",
@@ -289,6 +288,25 @@
       "title": "Sun* Kudos",
       "body": "NEW IN SAA 2025\nA movement to recognize and thank colleagues, held for the first time for all Sunners. The activity rolls out in November 2025, encouraging Sun* people to share words of recognition and thanks to colleagues on the system announced by the organizing committee. This will be the material the Heads Council references when selecting award recipients.",
       "cta": "Details"
+    }
+  },
+  "secretBox": {
+    "title": "EXPLORE YOUR SECRET BOX",
+    "instruction": "Click the box to open",
+    "unopenedLabel": "Unopened Secret Boxes",
+    "close": "Close",
+    "dialogAriaLabel": "Explore Secret Box",
+    "openBoxAriaLabel": "Open Secret Box",
+    "boxImageAlt": "Unopened mystery gift box",
+    "successTitle": "SECRET BOX OPENED SUCCESSFULLY",
+    "instructionContinue": "Click the box to keep opening",
+    "badges": {
+      "stay_gold": "Stay Gold",
+      "flow_to_horizon": "Flow to Horizon",
+      "touch_of_light": "Touch of Light",
+      "beyond_the_boundary": "Beyond the Boundary",
+      "revival": "Revival",
+      "root_further": "Root Further"
     }
   },
   "writeKudos": {

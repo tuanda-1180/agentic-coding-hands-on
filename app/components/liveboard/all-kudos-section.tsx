@@ -3,6 +3,7 @@
 import { type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
 import type { KudosPost, Stats, LeaderboardEntry } from "@/app/lib/liveboard/types";
+import { useSecretBox } from "@/app/components/secret-box/secret-box-provider";
 import AllKudosFeed from "./all-kudos-feed";
 import LiveboardSidebar from "./liveboard-sidebar";
 import { GOLD } from "./theme";
@@ -48,6 +49,7 @@ export default function AllKudosSection({
   onEdit,
 }: AllKudosSectionProps) {
   const t = useTranslations("liveboard");
+  const secretBox = useSecretBox();
 
   return (
     <section style={sectionWrapperStyle} aria-label="All Kudos">
@@ -73,7 +75,7 @@ export default function AllKudosSection({
         <LiveboardSidebar
           stats={stats ?? ZERO_STATS}
           leaderboardGifts={leaderboardGifts}
-          onOpenGift={() => console.log("open gift")}
+          onOpenGift={() => secretBox?.open()}
         />
       </div>
     </section>
