@@ -76,7 +76,7 @@ export async function getProfileData(): Promise<ProfileData> {
   try {
     const session = await auth();
     sessionUser = session?.user ?? null;
-    uid = await resolveUserId(session?.user?.email);
+    uid = await resolveUserId(session?.user);
   } catch {
     // auth() unavailable → treat as not signed in.
     uid = null;

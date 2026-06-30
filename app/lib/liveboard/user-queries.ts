@@ -5,44 +5,70 @@ import { auth } from "@/auth";
 import { toSunner, one, type SunnerRow } from "./mappers";
 import type { Stats, Leaderboards, LeaderboardEntry } from "./types";
 
+type SessionUserLite = {
+  email?: string | null;
+  name?: string | null;
+  image?: string | null;
+};
+
+// Department assigned to a freshly auto-provisioned account until it is updated.
+const DEFAULT_DEPARTMENT = "Sun*";
+
 /**
- * Resolve the signed-in user's sunner id.
+ * Resolve the signed-in user's sunner id, creating the row on first sign-in so
+ * every authenticated account has a profile.
  * - No email (not signed in) → null. Login is required.
  * - Email matches a sunner → that row.
- * - Email present but NOT in the mock seed → a deterministic mock sunner, so a
- *   real signed-in account still maps onto the mock dataset (seed emails are fake).
- *   The signed-in name/avatar are layered on top by getProfileData.
+ * - Email not seen before → auto-provision a new sunner from the session
+ *   identity (name/avatar) and return it.
+ *
+ * Accepts a session-user object (preferred — its name/avatar seed the new row)
+ * or a bare email string (back-compat; the email is used as the name).
  */
-export async function resolveUserId(email?: string | null): Promise<string | null> {
+export async function resolveUserId(
+  user?: SessionUserLite | string | null
+): Promise<string | null> {
+  const u: SessionUserLite | null =
+    typeof user === "string" ? { email: user } : user ?? null;
+  const email = u?.email;
   if (!email) return null;
+
   const supabase = getServiceClient();
 
-  const { data } = await supabase
+  const { data: existing } = await supabase
     .from("sunners")
     .select("id")
     .eq("email", email)
     .maybeSingle();
-  if (data?.id) return data.id;
+  if (existing?.id) return existing.id;
 
-  // Dev/demo convenience: seed emails are fake, so map a signed-in account onto
-  // the designated "current user" seed row (is_current_user = true) — the same
-  // identity the profile page presents. NEVER in production — it would let any
-  // authenticated user act as (and edit kudos of) that seeded sunner.
-  if (process.env.NODE_ENV !== "development") return null;
-
-  const { data: fallback } = await supabase
+  // Auto-provision: every signed-in account gets its own sunner row. Upsert on
+  // the unique email so concurrent first requests converge on one row instead
+  // of racing into a duplicate-key error.
+  const { data: created, error } = await supabase
     .from("sunners")
+    .upsert(
+      {
+        email,
+        name: u?.name ?? email,
+        avatar_url: u?.image ?? null,
+        department: DEFAULT_DEPARTMENT,
+      },
+      { onConflict: "email" }
+    )
     .select("id")
-    .eq("is_current_user", true)
-    .limit(1)
     .maybeSingle();
-  return fallback?.id ?? null;
+  if (error) {
+    console.error("Failed to auto-provision sunner for", email, error);
+    return null;
+  }
+  return created?.id ?? null;
 }
 
 export async function currentUserId(): Promise<string | null> {
   try {
     const session = await auth();
-    return resolveUserId(session?.user?.email);
+    return resolveUserId(session?.user);
   } catch {
     // No request context / auth unavailable → treat as not signed in.
     return null;
@@ -63,7 +89,7 @@ export interface CurrentIdentity {
 export async function currentIdentity(): Promise<CurrentIdentity | null> {
   try {
     const session = await auth();
-    const uid = await resolveUserId(session?.user?.email);
+    const uid = await resolveUserId(session?.user);
     if (!uid) return null;
     return { uid, name: session?.user?.name, avatarUrl: session?.user?.image };
   } catch {
