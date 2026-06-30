@@ -151,6 +151,37 @@ export function useLiveboardData(): LiveboardData {
       .catch(() => patch(flip)); // revert optimistic on network failure
   }, []);
 
+  // Insert a freshly created kudo at the top of the feed (no refetch needed).
+  const prependKudo = useCallback((k: KudosPost) => {
+    setFeed((prev) => [k, ...prev.filter((x) => x.id !== k.id)]);
+    setFeedTotal((n) => n + 1);
+  }, []);
+
+  // Replace an edited kudo in both the feed and highlights.
+  const replaceKudo = useCallback((k: KudosPost) => {
+    setFeed((prev) => prev.map((x) => (x.id === k.id ? k : x)));
+    setHighlights((prev) => prev.map((x) => (x.id === k.id ? k : x)));
+  }, []);
+
+  // Apply create/edit done anywhere (the global compose modal broadcasts this)
+  // so the feed updates without a refetch.
+  useEffect(() => {
+    const onSaved = (e: Event) => {
+      const { kudo, mode } = (e as CustomEvent<{ kudo: KudosPost; mode: "create" | "edit" }>).detail;
+      if (mode === "edit") {
+        replaceKudo(kudo);
+        return;
+      }
+      // Create: only surface the new kudo if it matches the active filters,
+      // otherwise it would appear in a view it doesn't belong to.
+      const matchesHashtag = !hashtag || kudo.tags.includes(hashtag);
+      const matchesDept = !department || kudo.receiver.team === department;
+      if (matchesHashtag && matchesDept) prependKudo(kudo);
+    };
+    window.addEventListener("kudos:saved", onSaved);
+    return () => window.removeEventListener("kudos:saved", onSaved);
+  }, [prependKudo, replaceKudo, hashtag, department]);
+
   return {
     loading, error, highlights, feed, feedTotal,
     hasMore: nextPage !== null, loadingMore, loadMore,

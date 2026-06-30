@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { type CSSProperties } from "react";
 import { useTranslations } from "next-intl";
-import type { KudosPost } from "@/app/lib/liveboard/types";
+import DOMPurify from "isomorphic-dompurify";
+import type { KudosPost, Sunner } from "@/app/lib/liveboard/types";
 import SunnerBlock from "./sunner-block";
 import HeartButton from "./heart-button";
 import { GOLD, DARK, MUTED, RED } from "./theme";
@@ -13,6 +14,9 @@ export interface KudosPostCardProps {
   onCopyLink: (id: string) => void;
   onHashtagClick?: (tag: string) => void;
   onToggleLike?: (id: string) => void;
+  /** When true the pencil becomes an Edit button (own kudos only). */
+  editable?: boolean;
+  onEdit?: (kudos: KudosPost) => void;
 }
 
 const sep: CSSProperties = { height: "1px", background: GOLD, width: "100%" };
@@ -29,10 +33,20 @@ function showToast(msg: string) {
   _tt = setTimeout(() => el.remove(), 3000);
 }
 
-export default function KudosPostCard({ kudos, onCopyLink, onHashtagClick, onToggleLike }: KudosPostCardProps) {
+export default function KudosPostCard({ kudos, onCopyLink, onHashtagClick, onToggleLike, editable, onEdit }: KudosPostCardProps) {
   const t = useTranslations("liveboard");
   const postedDate = new Date(kudos.postedAt);
   const postedAt = `${postedDate.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })} - ${postedDate.toLocaleDateString("vi-VN")}`;
+
+  // Anonymous kudos hide the sender's identity; the mapper already masked the
+  // sender and put the chosen alias into sender.name — show it (or a generic
+  // localized label when no alias was given).
+  const sender: Sunner = kudos.isAnonymous
+    ? { ...kudos.sender, name: kudos.sender.name || t("anonymousSender") }
+    : kudos.sender;
+
+  // Content is rich-text HTML from the editor — sanitize before rendering.
+  const safeContent = DOMPurify.sanitize(kudos.content);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(`${window.location.href}#${kudos.id}`).catch(() => {});
@@ -45,7 +59,7 @@ export default function KudosPostCard({ kudos, onCopyLink, onHashtagClick, onTog
 
       {/* 1. Info row: sender / send-icon / receiver */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "24px", width: "100%" }}>
-        <SunnerBlock sunner={kudos.sender} />
+        <SunnerBlock sunner={sender} />
         <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={DARK} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: "16px" }} aria-hidden="true">
           <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" />
         </svg>
@@ -57,19 +71,30 @@ export default function KudosPostCard({ kudos, onCopyLink, onHashtagClick, onTog
       {/* 3. Time */}
       <span style={{ fontSize: "16px", color: MUTED, letterSpacing: "0.5px" }}>{postedAt}</span>
 
-      {/* 4. Hashtag row + pencil */}
+      {/* 4. Hashtag row + Edit pencil — pencil shows ONLY on the current user's own kudos */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: "16px", fontWeight: 700, color: DARK }}>{kudos.hashtag}</span>
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 013.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke={DARK} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        {editable && onEdit && (
+          <button type="button" onClick={() => onEdit(kudos)} aria-label={t("editKudo")}
+            style={{ background: "none", border: "none", padding: 0, cursor: "pointer", lineHeight: 0 }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 013.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke={DARK} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        )}
       </div>
 
-      {/* 5. Content box */}
+      {/* 4b. Danh hiệu (kudo title) */}
+      {kudos.title && (
+        <span style={{ fontSize: "22px", fontWeight: 700, color: DARK }}>{kudos.title}</span>
+      )}
+
+      {/* 5. Content box (rich-text HTML, sanitized) */}
       <div style={{ border: `1px solid ${GOLD}`, borderRadius: "12px", background: "rgba(255,234,158,0.4)", padding: "16px 24px" }}>
-        <p style={{ fontSize: "20px", fontWeight: 700, color: DARK, margin: 0, display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-          {kudos.content}
-        </p>
+        <div
+          style={{ fontSize: "20px", fontWeight: 700, color: DARK, margin: 0, overflow: "hidden" }}
+          dangerouslySetInnerHTML={{ __html: safeContent }}
+        />
       </div>
 
       {/* 6. Image gallery */}

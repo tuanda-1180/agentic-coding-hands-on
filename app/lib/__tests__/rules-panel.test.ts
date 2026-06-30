@@ -31,39 +31,36 @@ describe("app/rules/page.tsx — redirect to home", () => {
 describe("app/components/homepage/fab.tsx — rules action wiring", () => {
   const src = read("app/components/homepage/fab.tsx");
 
-  it("defines a FabAction interface with key, href, icon, darkenIcon", () => {
+  it("defines a FabAction interface with key, icon, darkenIcon (no href — both actions open in place)", () => {
     expect(src).toMatch(/interface FabAction/);
     expect(src).toMatch(/key:\s*["']rules["']\s*\|\s*["']writeKudos["']/);
-    expect(src).toMatch(/href:\s*string\s*\|\s*null/);
     expect(src).toMatch(/icon:\s*string/);
     expect(src).toMatch(/darkenIcon:\s*boolean/);
-  });
-
-  it("includes rules action in FAB_ACTIONS with href: null", () => {
-    expect(src).toMatch(/key:\s*["']rules["'],\s*href:\s*null/);
+    // href removed — neither action navigates anymore.
+    expect(src).not.toMatch(/href:/);
   });
 
   it("includes rules action with fab-kudos.svg icon", () => {
     expect(src).toMatch(/key:\s*["']rules["'][^}]*icon:\s*["']\/saa\/fab-kudos\.svg["']/);
   });
 
-  it("includes writeKudos action with href: /kudos", () => {
-    expect(src).toMatch(/key:\s*["']writeKudos["'][^}]*href:\s*["']\/kudos["']/);
+  it("includes writeKudos action with fab-pen.svg icon", () => {
+    expect(src).toMatch(/key:\s*["']writeKudos["'][^}]*icon:\s*["']\/saa\/fab-pen\.svg["']/);
   });
 
-  it("accepts onOpenRules prop (called when rules action is chosen)", () => {
+  it("accepts onOpenRules and onWriteKudos props", () => {
     expect(src).toMatch(/interface FabProps/);
     expect(src).toMatch(/onOpenRules\?:\s*\(\)\s*=>\s*void/);
+    expect(src).toMatch(/onWriteKudos\?:\s*\(\)\s*=>\s*void/);
   });
 
-  it("calls onOpenRules() when rules action is selected (href is null)", () => {
-    expect(src).toMatch(/if\s*\(\s*action\.href\s*\)\s*\{/);
-    expect(src).toMatch(/else if\s*\(\s*action\.key\s*===\s*["']rules["']\s*\)/);
+  it("opens overlays in place (no router navigation)", () => {
+    expect(src).toMatch(/action\.key\s*===\s*["']rules["']/);
     expect(src).toMatch(/onOpenRules\?\.\(\)/);
-  });
-
-  it("routes to action.href when href is non-null", () => {
-    expect(src).toMatch(/router\.push\(\s*action\.href\s*\)/);
+    expect(src).toMatch(/action\.key\s*===\s*["']writeKudos["']/);
+    expect(src).toMatch(/onWriteKudos\?\.\(\)/);
+    // No navigation: the FAB no longer pushes a route.
+    expect(src).not.toMatch(/router\.push/);
   });
 
   it("renders each action as a menuitem button", () => {

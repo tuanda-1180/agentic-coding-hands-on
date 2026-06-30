@@ -14,6 +14,8 @@ export interface AllKudosFeedProps {
   loadingMore?: boolean;
   onLoadMore?: () => void;
   loadingLabel?: string;
+  /** Opens the edit modal for a kudo (only shown on the current user's own kudos). */
+  onEdit?: (kudos: KudosPost) => void;
 }
 
 const feedStyle: CSSProperties = {
@@ -46,6 +48,7 @@ export default function AllKudosFeed({
   loadingMore,
   onLoadMore,
   loadingLabel,
+  onEdit,
 }: AllKudosFeedProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
@@ -61,7 +64,9 @@ export default function AllKudosFeed({
     );
     observer.observe(el);
     return () => observer.disconnect();
-  }, [hasMore, onLoadMore, loadingMore]);
+    // loadingMore intentionally omitted — the loadMore() guard handles re-entry;
+    // including it would needlessly re-attach the observer each fetch.
+  }, [hasMore, onLoadMore]);
 
   if (items.length === 0) {
     return (
@@ -80,6 +85,8 @@ export default function AllKudosFeed({
           onCopyLink={onCopyLink}
           onHashtagClick={onHashtagClick}
           onToggleLike={onToggleLike}
+          editable={kudos.isMine}
+          onEdit={onEdit}
         />
       ))}
       {hasMore && (

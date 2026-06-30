@@ -1,7 +1,7 @@
 // Supabase-backed queries for kudos feed, highlights, spotlight and filters.
 import { getServiceClient } from "@/app/lib/supabase/server-client";
 import { toKudos, one, type KudosRow, type SunnerRow } from "./mappers";
-import { currentUserId } from "./user-queries";
+import { currentUserId, currentIdentity } from "./user-queries";
 import type {
   KudosFeedResponse,
   KudosPost,
@@ -11,7 +11,7 @@ import type {
 } from "./types";
 
 export const KUDOS_SELECT =
-  "id, content, category, tags, images, created_at, " +
+  "id, title, content, category, tags, images, is_anonymous, anonymous_name, created_at, " +
   "sender:sunners!sender_id(*), receiver:sunners!receiver_id!inner(*), hearts(count)";
 
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -19,9 +19,9 @@ const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v
 const HIGHLIGHT_SCAN_LIMIT = 100;
 
 /** Which of the given kudos the current user has already liked (for the lit heart). */
-export async function likedKudosIds(ids: string[]): Promise<Set<string>> {
+export async function likedKudosIds(ids: string[], presolvedUid?: string | null): Promise<Set<string>> {
   if (ids.length === 0) return new Set();
-  const uid = await currentUserId();
+  const uid = presolvedUid === undefined ? await currentUserId() : presolvedUid;
   if (!uid) return new Set();
   const { data } = await getServiceClient()
     .from("hearts")
@@ -55,8 +55,10 @@ export async function getFeed(opts: {
 
   const total = count ?? 0;
   const rows = data as unknown as KudosRow[];
-  const liked = await likedKudosIds(rows.map((r) => r.id));
-  const items = rows.map((r) => toKudos(r, liked));
+  const me = await currentIdentity();
+  const uid = me?.uid ?? null;
+  const liked = await likedKudosIds(rows.map((r) => r.id), uid);
+  const items = rows.map((r) => toKudos(r, liked, uid, me ?? undefined));
   const nextPage = from + pageSize < total ? page + 1 : null;
   return { items, nextPage, total };
 }
@@ -80,9 +82,11 @@ export async function getHighlights(opts: {
   if (error) throw error;
 
   const rows = data as unknown as KudosRow[];
-  const liked = await likedKudosIds(rows.map((r) => r.id));
+  const me = await currentIdentity();
+  const uid = me?.uid ?? null;
+  const liked = await likedKudosIds(rows.map((r) => r.id), uid);
   return rows
-    .map((r) => toKudos(r, liked))
+    .map((r) => toKudos(r, liked, uid, me ?? undefined))
     .sort((a, b) => b.heartCount - a.heartCount)
     .slice(0, 5);
 }

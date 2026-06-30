@@ -6,6 +6,7 @@ import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { GOLD, DARK, PANEL_BG, MUTED, BORDER, SEPARATOR } from "@/app/components/liveboard/theme";
 import { BadgePill } from "@/app/components/liveboard/hero-badge";
+import { useKudoCompose } from "@/app/components/kudos/kudo-compose-provider";
 
 export interface UserAvatarInfo {
   /** Sunner id — when present, the card lazy-loads kudos received/sent counts. */
@@ -97,6 +98,8 @@ interface UserAvatarCardProps {
   rect: DOMRect;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  /** Close the hover card immediately (e.g. when an action opens a modal). */
+  onRequestClose?: () => void;
 }
 
 /**
@@ -105,8 +108,9 @@ interface UserAvatarCardProps {
  * <body> so it is not clipped by a card's overflow:hidden. Counts are lazy-loaded
  * from /api/users/[id]/summary and cached per id.
  */
-export default function UserAvatarCard({ info, rect, onMouseEnter, onMouseLeave }: UserAvatarCardProps) {
+export default function UserAvatarCard({ info, rect, onMouseEnter, onMouseLeave, onRequestClose }: UserAvatarCardProps) {
   const t = useTranslations("liveboard");
+  const compose = useKudoCompose();
   const [counts, setCounts] = useState<Counts | null>(() => readCache(info.id));
 
   useEffect(() => {
@@ -183,10 +187,24 @@ export default function UserAvatarCard({ info, rect, onMouseEnter, onMouseLeave 
         <StatLine label={t("avatarReceived")} value={counts?.received} />
         <StatLine label={t("avatarSent")} value={counts?.sent} />
       </div>
-      <Link href="/kudos" style={sendBtnStyle}>
-        <PencilIcon />
-        {t("avatarSendKudo")}
-      </Link>
+      {info.id && compose ? (
+        <button
+          type="button"
+          onClick={() => {
+            compose.openCreate({ id: info.id!, name: info.name, avatarUrl: "" });
+            onRequestClose?.();
+          }}
+          style={{ ...sendBtnStyle, border: "none", cursor: "pointer" }}
+        >
+          <PencilIcon />
+          {t("avatarSendKudo")}
+        </button>
+      ) : (
+        <Link href="/kudos" style={sendBtnStyle}>
+          <PencilIcon />
+          {t("avatarSendKudo")}
+        </Link>
+      )}
       {info.id && (
         <Link href={`/profile/${info.id}`} style={viewProfileBtnStyle}>
           {t("avatarViewProfile")}

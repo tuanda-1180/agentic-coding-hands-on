@@ -172,7 +172,9 @@
     "avatarViewProfile": "View profile",
     "copyright": "© 2025 Sun*. All rights reserved.",
     "loadMore": "Load more",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "anonymousSender": "Anonymous",
+    "editKudo": "Edit Kudo"
   },
   "profile": {
     "awardsTitle": "Sun* Annual Awards 2025",
@@ -288,5 +290,26 @@
       "body": "NEW IN SAA 2025\nA movement to recognize and thank colleagues, held for the first time for all Sunners. The activity rolls out in November 2025, encouraging Sun* people to share words of recognition and thanks to colleagues on the system announced by the organizing committee. This will be the material the Heads Council references when selecting award recipients.",
       "cta": "Details"
     }
+  },
+  "writeKudos": {
+    "submitError": "Submission failed, please try again.",
+    "errRequired": "This field is required",
+    "errMaxTags": "Maximum 5 hashtags",
+    "errMaxImages": "Maximum 5 images",
+    "errFileType": "Unsupported file format",
+    "errInvalidUrl": "Invalid image",
+    "errTooLong": "Content is too long",
+    "anonymousNamePlaceholder": "Enter an anonymous name",
+    "incompleteError": "Please fill in Recipient, Message and Hashtag to send your Kudos!",
+    "linkTitle": "Add link",
+    "linkTextLabel": "Content",
+    "linkCancel": "Cancel",
+    "linkSave": "Save",
+    "errLinkText": "Content must be 1–100 characters",
+    "errLinkUrl": "Invalid URL (http/https, 5–2048 chars)",
+    "modalTitle": "Send thanks and recognition to your teammates",
+    "cancel": "Cancel",
+    "submit": "Send",
+    "submitting": "Sending…"
   }
 }

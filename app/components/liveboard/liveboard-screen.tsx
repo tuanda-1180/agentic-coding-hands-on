@@ -6,10 +6,12 @@ import LiveboardBanner from "./liveboard-banner";
 import HighlightKudosSection from "./highlight-kudos-section";
 import SpotlightBoard from "./spotlight-board";
 import AllKudosSection from "./all-kudos-section";
+import { useKudoCompose } from "@/app/components/kudos/kudo-compose-provider";
 import { useLiveboardData } from "@/app/lib/liveboard/use-liveboard-data";
 
 // Root composition for the Sun* Kudos - Live Board screen.
 // All data comes from the Supabase-backed API via useLiveboardData().
+// The compose/edit modal is provided globally (KudoComposeProvider).
 
 const screenStyle: CSSProperties = {
   minHeight: "100vh",
@@ -21,10 +23,11 @@ const screenStyle: CSSProperties = {
 export default function LiveboardScreen() {
   const t = useTranslations("liveboard");
   const data = useLiveboardData();
+  const compose = useKudoCompose();
 
   return (
     <div style={screenStyle}>
-      <LiveboardBanner />
+      <LiveboardBanner onKudosClick={() => compose?.openCreate()} />
 
       <HighlightKudosSection
         items={data.highlights}
@@ -51,6 +54,7 @@ export default function LiveboardScreen() {
         onLoadMore={data.loadMore}
         onToggleLike={data.toggleLike}
         onHashtagClick={data.setHashtag}
+        onEdit={(kudo) => compose?.openEdit(kudo)}
       />
 
       <footer

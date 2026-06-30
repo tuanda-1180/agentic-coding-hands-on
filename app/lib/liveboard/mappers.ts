@@ -13,10 +13,13 @@ export interface SunnerRow {
 
 export interface KudosRow {
   id: string;
+  title?: string | null;
   content: string;
   category: string | null;
   tags: string[];
   images: string[];
+  is_anonymous?: boolean | null;
+  anonymous_name?: string | null;
   created_at: string;
   sender: SunnerRow | SunnerRow[];
   receiver: SunnerRow | SunnerRow[];
@@ -51,17 +54,46 @@ export function toSunner(row: SunnerRow): Sunner {
   };
 }
 
-export function toKudos(row: KudosRow, likedIds?: Set<string>): KudosPost {
+// Sender shown for anonymous kudos — real identity is never serialized.
+// The alias (anonymous_name) is shown when provided, else a generic label.
+const anonSender = (alias?: string | null) => ({
+  id: "anonymous",
+  name: alias && alias.trim() ? alias.trim() : "Người ẩn danh",
+  team: "",
+  avatarUrl: "",
+  badge: undefined,
+});
+
+export function toKudos(
+  row: KudosRow,
+  likedIds?: Set<string>,
+  meId?: string | null,
+  self?: { name?: string | null; avatarUrl?: string | null }
+): KudosPost {
+  const realSender = toSunner(one(row.sender));
+  const isAnonymous = row.is_anonymous ?? false;
+  // Ownership is computed from the REAL sender before masking, so the author can
+  // still edit their own anonymous kudo while others never see the sender.
+  const isMine = !!meId && realSender.id === meId;
+  // Render the current user's own (non-anonymous) kudo with their real session
+  // identity — the underlying sunner row may be a seed/fallback ("not me").
+  const ownSender =
+    isMine && !isAnonymous && (self?.name || self?.avatarUrl)
+      ? { ...realSender, name: self?.name ?? realSender.name, avatarUrl: self?.avatarUrl ?? realSender.avatarUrl }
+      : realSender;
   return {
     id: row.id,
-    sender: toSunner(one(row.sender)),
+    sender: isAnonymous ? anonSender(row.anonymous_name) : ownSender,
     receiver: toSunner(one(row.receiver)),
     postedAt: row.created_at,
+    title: row.title ?? "",
     hashtag: row.category ?? "",
     content: row.content,
     images: row.images ?? [],
     tags: row.tags ?? [],
     heartCount: row.hearts?.[0]?.count ?? 0,
     liked: likedIds?.has(row.id) ?? false,
+    isAnonymous,
+    isMine,
   };
 }

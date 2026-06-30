@@ -33,6 +33,8 @@ export interface UserAvatarProps {
   priority?: boolean;
   /** When provided, hovering opens the info card. */
   info?: UserAvatarInfo;
+  /** Render the anonymous placeholder (masked identity) instead of a photo. */
+  anonymous?: boolean;
 }
 
 export default function UserAvatar({
@@ -42,6 +44,7 @@ export default function UserAvatar({
   borderWidth = 1.869,
   priority,
   info,
+  anonymous,
 }: UserAvatarProps) {
   const [open, setOpen] = useState(false);
   const [rect, setRect] = useState<DOMRect | null>(null);
@@ -78,11 +81,49 @@ export default function UserAvatar({
     }, CLOSE_DELAY_MS);
   };
 
+  // Close immediately (e.g. when the card's "Gửi KUDO" opens the compose modal).
+  const closeNow = () => {
+    cancelClose();
+    setOpen(false);
+    setRect(null);
+  };
+
   const openCard = (e: React.MouseEvent<HTMLElement>) => {
     cancelClose();
     setOpen(true);
     if (info) setRect(e.currentTarget.getBoundingClientRect());
   };
+
+  // Anonymous sender: masked placeholder, no photo, no hover info card.
+  if (anonymous) {
+    return (
+      <span style={{ display: "inline-flex", flexShrink: 0 }}>
+        <span
+          aria-label={alt}
+          role="img"
+          style={{
+            width: `${size}px`,
+            height: `${size}px`,
+            borderRadius: "50%",
+            border: `${borderWidth}px solid ${NORMAL_BORDER}`,
+            background: "#2E3940",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxSizing: "border-box",
+          }}
+        >
+          {/* Incognito mask glyph */}
+          <svg width={size * 0.56} height={size * 0.56} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 13h18M5 13l1.2-4.2A2 2 0 0 1 8.1 7.3h7.8a2 2 0 0 1 1.9 1.5L19 13" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="7.5" cy="16" r="2.6" stroke="#FFFFFF" strokeWidth="1.6" />
+            <circle cx="16.5" cy="16" r="2.6" stroke="#FFFFFF" strokeWidth="1.6" />
+            <path d="M10.1 16c.6-.5 3.2-.5 3.8 0" stroke="#FFFFFF" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </span>
+      </span>
+    );
+  }
 
   return (
     <span
@@ -113,6 +154,7 @@ export default function UserAvatar({
           rect={rect}
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
+          onRequestClose={closeNow}
         />
       )}
     </span>
