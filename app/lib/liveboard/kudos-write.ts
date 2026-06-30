@@ -1,6 +1,6 @@
 // Write-path queries for kudos: create + edit. Server-only (service_role).
 import "server-only";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizeKudoHtml } from "@/app/lib/kudos/sanitize";
 import { getServiceClient } from "@/app/lib/supabase/server-client";
 import { currentIdentity } from "./user-queries";
 import { KUDOS_SELECT } from "./kudos-queries";
@@ -22,7 +22,7 @@ function normalize(input: KudosInput) {
     title: input.title.trim(),
     // Defense-in-depth: sanitize the rich-text HTML before it ever hits the DB,
     // so no render path (feed, export, notifications) can receive script tags.
-    content: DOMPurify.sanitize(input.content),
+    content: sanitizeKudoHtml(input.content),
     // Derive category from the primary hashtag server-side — never trust the
     // client value (an empty category would pollute the filter options).
     category: tags[0] ?? input.category ?? "",
