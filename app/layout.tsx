@@ -5,6 +5,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { SessionProvider } from "next-auth/react";
 import SiteChrome from "./components/layout/site-chrome";
+import KudoComposeProvider from "./components/kudos/kudo-compose-provider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -43,7 +44,9 @@ export default async function RootLayout({
       <body className="h-full">
         <SessionProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <SiteChrome>{children}</SiteChrome>
+            <KudoComposeProvider>
+              <SiteChrome>{children}</SiteChrome>
+            </KudoComposeProvider>
           </NextIntlClientProvider>
         </SessionProvider>
       </body>

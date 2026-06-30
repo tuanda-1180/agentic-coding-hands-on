@@ -19,12 +19,27 @@ export interface KudosPost {
   sender: Sunner;
   receiver: Sunner;
   postedAt: string; // ISO string
+  title: string; // "Danh hiệu" — kudo headline, shown above the content
   hashtag: string; // primary category hashtag, e.g. "IDOL GIỚI TRẺ"
-  content: string;
+  content: string; // rich-text HTML (sanitized before render)
   images: string[]; // up to 5 image URLs
   tags: string[]; // clickable #tags, e.g. ["#Dedicated"]
   heartCount: number;
   liked: boolean; // whether the current user has liked this kudos
+  isAnonymous: boolean; // sender identity hidden when true
+  isMine: boolean; // authored by the current user (enables edit) — set server-side
+}
+
+// Payload accepted by the create/update kudo endpoints.
+export interface KudosInput {
+  receiverId: string;
+  title: string;
+  content: string; // rich-text HTML
+  category: string; // primary hashtag
+  tags: string[];
+  images: string[];
+  isAnonymous: boolean;
+  anonymousName?: string; // alias shown as sender when isAnonymous
 }
 
 export interface LeaderboardEntry {

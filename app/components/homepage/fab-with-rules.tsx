@@ -1,35 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Fab from "./fab";
 import RulesPanel from "./rules-panel";
+import { useKudoCompose } from "@/app/components/kudos/kudo-compose-provider";
 
 /**
- * Client wrapper that co-locates the FAB and the Thể lệ (Rules) overlay panel so
- * they can share open/close state. homepage-screen stays a Server Component and
- * just renders <FabWithRules />.
- *
- * - FAB "Thể lệ" action  → opens the panel
- * - Panel Đóng / Esc / backdrop → closes it
- * - Panel "Viết KUDOS"   → closes the panel, then navigates to /kudos
+ * Client wrapper that co-locates the FAB and the Thể lệ (Rules) overlay panel.
+ * The Viết Kudo compose modal is provided globally (KudoComposeProvider in the
+ * root layout), so both the FAB and the panel just call openCreate() — the modal
+ * opens in place, no navigation.
  */
 export default function FabWithRules() {
-  const router = useRouter();
   const [rulesOpen, setRulesOpen] = useState(false);
+  const compose = useKudoCompose();
 
-  const handleWriteKudos = () => {
+  const openCompose = () => {
     setRulesOpen(false);
-    router.push("/kudos");
+    compose?.openCreate();
   };
 
   return (
     <>
-      <Fab onOpenRules={() => setRulesOpen(true)} />
+      <Fab onOpenRules={() => setRulesOpen(true)} onWriteKudos={openCompose} />
       <RulesPanel
         open={rulesOpen}
         onClose={() => setRulesOpen(false)}
-        onWriteKudos={handleWriteKudos}
+        onWriteKudos={openCompose}
       />
     </>
   );

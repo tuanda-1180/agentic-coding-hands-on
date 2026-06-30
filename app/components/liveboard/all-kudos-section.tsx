@@ -16,6 +16,7 @@ export interface AllKudosSectionProps {
   onLoadMore?: () => void;
   onToggleLike?: (id: string) => void;
   onHashtagClick?: (tag: string) => void;
+  onEdit?: (kudos: KudosPost) => void;
 }
 
 const sectionWrapperStyle: CSSProperties = { backgroundColor: "#00101A", padding: "48px 0" };
@@ -44,6 +45,7 @@ export default function AllKudosSection({
   onLoadMore,
   onToggleLike,
   onHashtagClick,
+  onEdit,
 }: AllKudosSectionProps) {
   const t = useTranslations("liveboard");
 
@@ -66,6 +68,7 @@ export default function AllKudosSection({
           hasMore={hasMore}
           loadingMore={loadingMore}
           onLoadMore={onLoadMore}
+          onEdit={onEdit}
         />
         <LiveboardSidebar
           stats={stats ?? ZERO_STATS}
