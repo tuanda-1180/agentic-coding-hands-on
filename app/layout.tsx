@@ -7,6 +7,7 @@ import { SessionProvider } from "next-auth/react";
 import SiteChrome from "./components/layout/site-chrome";
 import KudoComposeProvider from "./components/kudos/kudo-compose-provider";
 import SecretBoxProvider from "./components/secret-box/secret-box-provider";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "./lib/site-config";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -21,8 +22,31 @@ const ledFont = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Sự kiện sẽ bắt đầu sau",
-  description: "Countdown prelaunch page",
+  metadataBase: new URL(SITE_URL),
+  // `default` titles the homepage; `template` suffixes every child page that
+  // sets its own title (e.g. a user's profile).
+  title: {
+    default: SITE_NAME,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default async function RootLayout({
@@ -36,13 +60,13 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
-      className={`${montserrat.variable} ${ledFont.variable} h-full`}
+      className={`${montserrat.variable} ${ledFont.variable}`}
       // Browser extensions (e.g. Immersive Translate, theme/dark-mode addons) inject
       // attributes onto <html> before React hydrates, causing a benign mismatch.
       // suppressHydrationWarning only silences this element's own attributes, not its subtree.
       suppressHydrationWarning
     >
-      <body className="h-full">
+      <body>
         <SessionProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
             <KudoComposeProvider>

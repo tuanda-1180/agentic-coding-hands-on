@@ -329,5 +329,14 @@
     "cancel": "Cancel",
     "submit": "Send",
     "submitting": "Sending…"
+  },
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to home",
+    "errorTitle": "Something went wrong",
+    "errorBody": "An unexpected error occurred. Please try again.",
+    "retry": "Try again",
+    "loading": "Loading…"
   }
 }

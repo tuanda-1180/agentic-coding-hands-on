@@ -329,5 +329,14 @@
     "cancel": "Hủy",
     "submit": "Gửi",
     "submitting": "Đang gửi…"
+  },
+  "errors": {
+    "notFoundTitle": "Không tìm thấy trang",
+    "notFoundBody": "Trang bạn tìm không tồn tại hoặc đã được di chuyển.",
+    "backHome": "Về trang chủ",
+    "errorTitle": "Đã có lỗi xảy ra",
+    "errorBody": "Đã xảy ra lỗi không mong muốn. Vui lòng thử lại.",
+    "retry": "Thử lại",
+    "loading": "Đang tải…"
   }
 }
